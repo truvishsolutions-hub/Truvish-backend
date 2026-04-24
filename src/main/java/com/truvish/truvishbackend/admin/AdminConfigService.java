@@ -4,10 +4,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.List;
 import java.util.function.Consumer;
 
 @Service
 public class AdminConfigService {
+
+    private static final long MAX_IMAGE_SIZE = 1024 * 1024;
+    private static final List<String> ALLOWED_IMAGE_TYPES = List.of("image/jpeg", "image/png", "image/webp", "image/jpg", "image/gif");
 
     private final AdminConfigRepository repo;
 
@@ -77,8 +81,23 @@ public class AdminConfigService {
         return repo.save(existing);
     }
 
+    private void validateImage(MultipartFile file) {
+        if (file == null || file.isEmpty()) return;
+
+        if (file.getSize() > MAX_IMAGE_SIZE) {
+            throw new IllegalArgumentException("Image size must be 1MB or less");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType.toLowerCase())) {
+            throw new IllegalArgumentException("Only JPG, JPEG, PNG, WEBP or GIF images are allowed");
+        }
+    }
+
     public String saveFile(MultipartFile file) throws Exception {
         if (file == null || file.isEmpty()) return null;
+
+        validateImage(file);
 
         String uploadDir = System.getProperty("user.dir") + "/uploads/";
         new File(uploadDir).mkdirs();

@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 @Service
 public class ClientChooseBrandService {
 
+    private static final long MAX_IMAGE_SIZE = 1024 * 1024;
+
     private final ClientChooseBrandRepository repository;
     private final FileStorageService fileStorageService;
 
@@ -29,6 +31,19 @@ public class ClientChooseBrandService {
     // =====================================================
     // SAVE BRAND
     // =====================================================
+    private void validateBrandImage(MultipartFile image) {
+        if (image == null || image.isEmpty()) return;
+
+        if (image.getSize() > MAX_IMAGE_SIZE) {
+            throw new IllegalArgumentException("Brand image size must be 1MB or less");
+        }
+
+        String contentType = image.getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+            throw new IllegalArgumentException("Only image files are allowed for brand upload");
+        }
+    }
+
     public ClientChooseBrandResponse saveBrand(
             String brandName,
             String category,
@@ -40,6 +55,7 @@ public class ClientChooseBrandService {
 
         try {
             if (image != null && !image.isEmpty()) {
+                validateBrandImage(image);
                 imgFileName = fileStorageService.storeFile(image);
             }
 
