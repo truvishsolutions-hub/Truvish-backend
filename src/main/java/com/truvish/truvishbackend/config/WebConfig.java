@@ -13,16 +13,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns(
+                .allowedOrigins(
+                        "https://truvish.com",
+                        "https://www.truvish.com",
                         "http://localhost:3000",
                         "http://localhost:5173",
                         "http://localhost:5174",
                         "http://localhost:5175",
-                        "http://localhost:5176",
-                        "https://*.up.railway.app",
-                        "https://*.railway.app",
-                        "https://*.netlify.app",
-                        "https://*.trycloudflare.com"
+                        "http://localhost:5176"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
