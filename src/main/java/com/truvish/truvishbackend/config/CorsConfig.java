@@ -20,6 +20,7 @@ public class CorsConfig {
                                 "http://localhost:5175",
                                 "http://localhost:5176",
                                 "https://client-request-production.up.railway.app",
+                                "https://truvish-main-production.up.railway.app",
                                 "https://trivish-redeem.com",
                                 "https://*.netlify.app",
                                 "https://*.trycloudflare.com"
