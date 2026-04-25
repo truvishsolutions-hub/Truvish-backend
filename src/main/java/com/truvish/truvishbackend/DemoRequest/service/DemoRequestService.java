@@ -1,6 +1,5 @@
 package com.truvish.truvishbackend.DemoRequest.service;
 
-
 import com.truvish.truvishbackend.DemoRequest.dto.DemoRequestDto;
 import com.truvish.truvishbackend.DemoRequest.entity.DemoRequest;
 import com.truvish.truvishbackend.DemoRequest.repository.DemoRequestRepository;
@@ -22,6 +21,7 @@ public class DemoRequestService {
         request.setName(dto.getName().trim());
         request.setEmail(dto.getEmail().trim());
         request.setPhone(dto.getPhone().trim());
+
         return demoRequestRepository.save(request);
     }
 
