@@ -1,8 +1,10 @@
 package com.truvish.truvishbackend.GmailDemoReq;
 
 import com.truvish.truvishbackend.DemoRequest.dto.DemoRequestDto;
+
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -23,58 +25,65 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
-    // For database save flow: /api/demo-requests
-    public void sendDemoRequestEmail(DemoRequestDto request) throws MessagingException {
-        sendEmail(
-                request.getName(),
-                request.getEmail(),
-                request.getPhone(),
-                null,
-                null
-        );
-    }
-
-    // For old Gmail flow: /api/book-demo
-    public void sendDemoRequestEmail(DemoRequest request) throws MessagingException {
-        sendEmail(
-                request.getName(),
-                request.getEmail(),
-                request.getPhone(),
-                request.getCompany(),
-                request.getMessage()
-        );
-    }
-
-    private void sendEmail(
-            String name,
-            String email,
-            String phone,
-            String company,
-            String userMessage
+    // =========================================================
+    // SEND DEMO REQUEST EMAIL
+    // =========================================================
+    public void sendDemoRequestEmail(
+            DemoRequestDto request
     ) throws MessagingException {
 
-        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessage message =
+                mailSender.createMimeMessage();
 
-        MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+        MimeMessageHelper helper =
+                new MimeMessageHelper(
+                        message,
+                        false,
+                        "UTF-8"
+                );
 
         helper.setFrom(senderEmail);
-        helper.setTo(receiverEmail);
-        helper.setReplyTo(email);
-        helper.setSubject("New Book a Demo Request - TruVish");
 
-        String emailBody =
-                "New Book a Demo Request - TruVish\n\n" +
-                        "Name: " + safe(name) + "\n" +
-                        "Email: " + safe(email) + "\n" +
-                        "Phone: " + safe(phone) + "\n" +
-                        "This email was sent from TruVish Book a Demo form.";
+        helper.setTo(receiverEmail);
+
+        helper.setReplyTo(request.getEmail());
+
+        helper.setSubject(
+                "New Book a Demo Request - TruVish"
+        );
+
+        String emailBody = """
+
+New Book a Demo Request - TruVish
+
+Name: %s
+Email: %s
+Phone: %s
+
+This email was sent from TruVish Book a Demo form.
+
+"""
+                .formatted(
+                        safe(request.getName()),
+                        safe(request.getEmail()),
+                        safe(request.getPhone())
+                );
 
         helper.setText(emailBody, false);
 
         mailSender.send(message);
     }
 
+    // =========================================================
+    // SAFE VALUE
+    // =========================================================
     private String safe(String value) {
-        return value == null || value.isBlank() ? "Not provided" : value.trim();
+
+        return value == null ||
+                value.isBlank()
+
+                ? "Not provided"
+
+                : value.trim();
     }
 }
