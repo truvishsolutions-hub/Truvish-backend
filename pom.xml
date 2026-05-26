@@ -64,7 +64,7 @@
         </dependency>
 
         <!-- ========================= -->
-        <!-- GMAIL SMTP / MAIL -->
+        <!-- SPRING MAIL -->
         <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
