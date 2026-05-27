@@ -12,22 +12,27 @@ public class WebConfig implements WebMvcConfigurer {
     // =========================================================
     // UPLOAD DIRECTORY
     // =========================================================
+
     private static final String UPLOAD_DIR = "uploads/";
 
     // =========================================================
     // CORS CONFIGURATION
     // =========================================================
+
     @Override
-    public void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(
+            CorsRegistry registry
+    ) {
 
         registry.addMapping("/**")
 
                 // =================================================
-                // ALLOWED FRONTEND DOMAINS
+                // FRONTEND DOMAINS
                 // =================================================
+
                 .allowedOriginPatterns(
 
-                        // MAIN DOMAINS
+                        // MAIN DOMAIN
                         "https://truvish.com",
                         "https://www.truvish.com",
 
@@ -37,10 +42,10 @@ public class WebConfig implements WebMvcConfigurer {
                         // NETLIFY
                         "https://*.netlify.app",
 
-                        // CLOUDFLARE TUNNEL
+                        // CLOUDFLARE
                         "https://*.trycloudflare.com",
 
-                        // OTHER DOMAINS
+                        // OTHER
                         "https://trivish-redeem.com",
                         "https://client-request-production.up.railway.app",
 
@@ -53,8 +58,9 @@ public class WebConfig implements WebMvcConfigurer {
                 )
 
                 // =================================================
-                // ALLOWED METHODS
+                // METHODS
                 // =================================================
+
                 .allowedMethods(
                         "GET",
                         "POST",
@@ -65,36 +71,47 @@ public class WebConfig implements WebMvcConfigurer {
                 )
 
                 // =================================================
-                // ALLOWED HEADERS
+                // HEADERS
                 // =================================================
+
                 .allowedHeaders("*")
 
                 // =================================================
                 // EXPOSE HEADERS
                 // =================================================
+
                 .exposedHeaders(
                         HttpHeaders.AUTHORIZATION,
                         HttpHeaders.CONTENT_TYPE
                 )
 
                 // =================================================
-                // ALLOW COOKIES / TOKENS
+                // COOKIES / TOKENS
                 // =================================================
+
                 .allowCredentials(true)
 
                 // =================================================
                 // PREFLIGHT CACHE
                 // =================================================
+
                 .maxAge(3600);
     }
 
     // =========================================================
     // STATIC FILE ACCESS
     // =========================================================
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + UPLOAD_DIR);
+    @Override
+    public void addResourceHandlers(
+            ResourceHandlerRegistry registry
+    ) {
+
+        registry.addResourceHandler(
+                        "/uploads/**"
+                )
+                .addResourceLocations(
+                        "file:" + UPLOAD_DIR
+                );
     }
 }

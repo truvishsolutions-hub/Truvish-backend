@@ -1,59 +1,112 @@
 package com.truvish.truvishbackend.ClientEmailService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/voucher")
-@CrossOrigin(
-        origins = {
-                "http://localhost:5173",
-                "http://localhost:3000"
-        },
-        allowedHeaders = "*",
-        methods = {
-                RequestMethod.GET,
-                RequestMethod.POST,
-                RequestMethod.PUT,
-                RequestMethod.DELETE,
-                RequestMethod.OPTIONS
-        }
-)
 public class VoucherController {
 
     @Autowired
     private ClientEmailService emailService;
 
     @PostMapping("/send")
-    public String sendVoucher(
+    public ResponseEntity<?> sendVoucher(
             @RequestBody VoucherRequest request
     ) {
 
-        // =====================================================
-        // CLIENT LOGO FULL PATH
-        // =====================================================
-        String clientLogoPath = null;
+        try {
 
-        if (
-                request.getClientLogo() != null &&
-                        !request.getClientLogo().trim().isEmpty()
-        ) {
+            // =====================================================
+            // CLIENT LOGO
+            // =====================================================
 
-            clientLogoPath =
-                    "uploads/" +
-                            request.getClientLogo();
+            String clientLogoPath = null;
+
+            if (
+                    request.getClientLogo() != null
+                            &&
+                            !request.getClientLogo().trim().isEmpty()
+            ) {
+
+                clientLogoPath =
+                        request.getClientLogo();
+            }
+
+            // =====================================================
+            // DEFAULT VALUES
+            // =====================================================
+
+            Integer validityDays =
+                    request.getValidityDays() == null
+
+                            ? 60
+
+                            : request.getValidityDays();
+
+            String companyName =
+                    request.getCompanyName() == null
+                            ||
+                            request.getCompanyName().isBlank()
+
+                            ? "TruVish"
+
+                            : request.getCompanyName();
+
+            // =====================================================
+            // SEND EMAIL
+            // =====================================================
+
+            emailService.sendVoucher(
+
+                    request.getEmail(),
+
+                    request.getName(),
+
+                    request.getVoucherCode(),
+
+                    clientLogoPath,
+
+                    validityDays,
+
+                    companyName
+            );
+
+            return ResponseEntity.ok(
+
+                    Map.of(
+
+                            "success", true,
+
+                            "message",
+                            "Voucher Sent Successfully"
+                    )
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return ResponseEntity
+                    .internalServerError()
+                    .body(
+
+                            Map.of(
+
+                                    "success", false,
+
+                                    "message",
+
+                                    e.getMessage() == null
+
+                                            ? "Failed to send voucher"
+
+                                            : e.getMessage()
+                            )
+                    );
         }
-
-        // =====================================================
-        // SEND EMAIL
-        // =====================================================
-        emailService.sendVoucher(
-                request.getEmail(),
-                request.getName(),
-                request.getVoucherCode(),
-                clientLogoPath
-        );
-
-        return "Voucher Sent Successfully";
     }
 }

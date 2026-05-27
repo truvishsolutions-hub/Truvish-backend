@@ -1,77 +1,147 @@
 package com.truvish.truvishbackend.GmailDemoReq;
 
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+
 import com.truvish.truvishbackend.DemoRequest.dto.DemoRequestDto;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
     @Value("${app.mail.receiver}")
     private String receiverEmail;
 
-    @Value("${spring.mail.username}")
+    @Value("${app.mail.sender-email}")
     private String senderEmail;
 
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    @Value("${app.mail.sender-name}")
+    private String senderName;
 
     // =========================================================
     // SEND DEMO REQUEST EMAIL
     // =========================================================
     public void sendDemoRequestEmail(
             DemoRequestDto request
-    ) throws MessagingException {
+    ) {
 
-        MimeMessage message =
-                mailSender.createMimeMessage();
+        try {
 
-        MimeMessageHelper helper =
-                new MimeMessageHelper(
-                        message,
-                        false,
-                        "UTF-8"
-                );
+            Resend resend =
+                    new Resend(resendApiKey);
 
-        helper.setFrom(senderEmail);
+            String html = """
+<!DOCTYPE html>
+<html>
+<body style="
+    margin:0;
+    padding:30px;
+    background:#f4f6f9;
+    font-family:Arial,sans-serif;
+">
 
-        helper.setTo(receiverEmail);
+<div style="
+    max-width:620px;
+    margin:auto;
+    background:#ffffff;
+    border-radius:24px;
+    overflow:hidden;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+">
 
-        helper.setReplyTo(request.getEmail());
+    <div style="
+        background:linear-gradient(135deg,#0E4A63,#13698f);
+        padding:30px;
+        text-align:center;
+    ">
 
-        helper.setSubject(
-                "New Book a Demo Request - TruVish"
-        );
+        <h1 style="
+            color:white;
+            margin:0;
+            font-size:28px;
+        ">
+            New Demo Request
+        </h1>
 
-        String emailBody = """
+    </div>
 
-New Book a Demo Request - TruVish
+    <div style="padding:35px;">
 
-Name: %s
-Email: %s
-Phone: %s
+        <p style="
+            font-size:16px;
+            color:#555;
+            line-height:1.7;
+        ">
+            A new demo request has been submitted from TruVish website.
+        </p>
 
-This email was sent from TruVish Book a Demo form.
+        <div style="
+            background:#f8fafc;
+            border-radius:18px;
+            padding:25px;
+            margin-top:25px;
+        ">
 
+            <p><b>Name:</b> %s</p>
+
+            <p><b>Email:</b> %s</p>
+
+            <p><b>Phone:</b> %s</p>
+
+        </div>
+
+        <div style="
+            margin-top:30px;
+            font-size:13px;
+            color:#888;
+            text-align:center;
+        ">
+            TruVish Solutions<br/>
+            Rewards • Loyalty • Gift Vouchers
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
 """
-                .formatted(
-                        safe(request.getName()),
-                        safe(request.getEmail()),
-                        safe(request.getPhone())
-                );
+                    .formatted(
+                            safe(request.getName()),
+                            safe(request.getEmail()),
+                            safe(request.getPhone())
+                    );
 
-        helper.setText(emailBody, false);
+            CreateEmailOptions params =
+                    CreateEmailOptions.builder()
+                            .from(senderName + " <" + senderEmail + ">")
+                            .to(receiverEmail)
+                            .replyTo(request.getEmail())
+                            .subject("New Book a Demo Request - TruVish")
+                            .html(html)
+                            .build();
 
-        mailSender.send(message);
+            resend.emails().send(params);
+
+            System.out.println(
+                    "DEMO REQUEST EMAIL SENT SUCCESSFULLY"
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            throw new RuntimeException(
+                    "FAILED TO SEND EMAIL : "
+                            + e.getMessage()
+            );
+        }
     }
 
     // =========================================================

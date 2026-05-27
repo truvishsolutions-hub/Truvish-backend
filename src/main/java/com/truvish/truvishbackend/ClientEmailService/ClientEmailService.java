@@ -1,463 +1,454 @@
 package com.truvish.truvishbackend.ClientEmailService;
 
-import jakarta.mail.internet.MimeMessage;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-
 import org.springframework.stereotype.Service;
 
 @Service
 public class ClientEmailService {
 
-    // =========================================================
-    // LOGGER
-    // =========================================================
     private static final Logger logger =
-            LoggerFactory.getLogger(
-                    ClientEmailService.class
-            );
+            LoggerFactory.getLogger(ClientEmailService.class);
 
-    // =========================================================
-    // MAIL SENDER
-    // =========================================================
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
-    // =========================================================
-    // GMAIL
-    // =========================================================
-    @Value("${spring.mail.username}")
-    private String senderEmail;
-
-    // =========================================================
-    // BACKEND URL
-    // =========================================================
-    @Value("${app.backend.url:http://localhost:8080}")
+    @Value("${app.backend.url}")
     private String backendUrl;
 
-    // =========================================================
-    // SEND VOUCHER EMAIL
-    // =========================================================
     public void sendVoucher(
             String toEmail,
             String name,
             String voucherCode,
-            String clientLogo
+            String clientLogo,
+            Integer validityDays,
+            String companyName
     ) {
 
         try {
 
-            // =================================================
-            // DEFAULT NAME
-            // =================================================
-            if (name == null || name.trim().isEmpty()) {
-                name = "There";
+            // =========================
+            // DEFAULT VALUES
+            // =========================
+
+            if (name == null || name.isBlank()) {
+                name = "Customer";
             }
 
-            // =================================================
-            // DEFAULT VOUCHER
-            // =================================================
-            if (voucherCode == null || voucherCode.trim().isEmpty()) {
+            if (voucherCode == null || voucherCode.isBlank()) {
                 voucherCode = "TRUVISH-CODE";
             }
 
-            // =================================================
-            // CLIENT LOGO HTML
-            // =================================================
-            String clientLogoHtml = "";
+            if (validityDays == null || validityDays <= 0) {
+                validityDays = 60;
+            }
 
-            if (
-                    clientLogo != null &&
-                            !clientLogo.trim().isEmpty()
-            ) {
+            if (companyName == null || companyName.isBlank()) {
+                companyName = "TruVish";
+            }
 
-                // =============================================
-                // FULL IMAGE URL
-                // =============================================
-                String logoUrl;
+            String validityText =
+                    validityDays + (validityDays == 1 ? " Month" : " Months");
 
-                if (
-                        clientLogo.startsWith("http://") ||
-                                clientLogo.startsWith("https://")
-                ) {
+            // =========================
+            // LOGO URL
+            // =========================
 
-                    logoUrl = clientLogo;
+            String logoUrl = "";
+
+            if (clientLogo != null && !clientLogo.isBlank()) {
+
+                String cacheBuster = "?t=" + System.currentTimeMillis();
+
+                if (clientLogo.startsWith("http://")
+                        || clientLogo.startsWith("https://")) {
+
+                    logoUrl = clientLogo + cacheBuster;
 
                 } else {
 
+                    clientLogo = clientLogo.replaceFirst("^/+", "");
+
                     logoUrl =
-                            backendUrl +
-                                    clientLogo;
+                            backendUrl + "/" + clientLogo + cacheBuster;
                 }
-
-                clientLogoHtml = """
-
-<img
-    src="%s"
-    width="80"
-    height="80"
-    alt="Client Logo"
-    style="
-       border-radius:14px;
-       object-fit:cover;
-       background:white;
-       padding:6px;
-       border:2px solid rgba(255,255,255,0.3);
-       display:block;
-    "
-/>
-
-""".formatted(logoUrl);
-
-                logger.info(
-                        "Client logo URL added: {}",
-                        logoUrl
-                );
             }
 
-            // =================================================
-            // CREATE MAIL
-            // =================================================
-            MimeMessage message =
-                    mailSender.createMimeMessage();
+            logger.info("LOGO URL : {}", logoUrl);
 
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(
-                            message,
-                            true,
-                            "UTF-8"
-                    );
+            // =========================
+            // CLIENT LOGO HTML
+            // =========================
 
-            // =================================================
-            // MAIL DETAILS
-            // =================================================
-            helper.setFrom(
-                    senderEmail,
-                    "Truvish Solutions"
-            );
+            String clientLogoHtml = "";
 
-            helper.setTo(toEmail);
+            if (!logoUrl.isBlank()) {
 
-            helper.setSubject(
-                    "Congratulations! Your Reward is Here 🎉"
-            );
+                clientLogoHtml = """
+                    <img
+                        src="%s"
+                        alt="Client Logo"
+                        style="
+                            width:110px;
+                            height:110px;
+                            object-fit:cover;
+                            border-radius:24px;
+                            background:#ffffff;
+                            padding:12px;
+                            display:block;
+                            margin:auto;
+                            box-shadow:0 8px 20px rgba(0,0,0,0.15);
+                        "
+                    />
+                    """.formatted(logoUrl);
+            }
 
-            // =================================================
-            // HTML
-            // =================================================
+            // =========================
+            // EMAIL HTML
+            // =========================
+
             String html = """
-
 <!DOCTYPE html>
 <html>
+<head>
 
-<body style="
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<style>
+
+body{
     margin:0;
     padding:0;
     background:#F3F7FA;
     font-family:Arial,sans-serif;
-">
+}
 
-<table width="100%%"
-       cellpadding="0"
-       cellspacing="0"
-       style="
-          background:#F3F7FA;
-          padding:40px 15px;
-">
+.wrapper{
+    width:100%%;
+    padding:30px 12px;
+    box-sizing:border-box;
+}
 
-<tr>
+.card{
+    max-width:640px;
+    margin:auto;
+    background:#ffffff;
+    border-radius:28px;
+    overflow:hidden;
+    box-shadow:0 12px 35px rgba(14,74,99,0.12);
+}
 
-<td align="center">
-
-<table width="100%%"
-       cellpadding="0"
-       cellspacing="0"
-       style="
-          max-width:650px;
-          background:#ffffff;
-          border-radius:24px;
-          overflow:hidden;
-          box-shadow:0 10px 35px rgba(0,0,0,0.08);
-">
-
-<!-- TOP -->
-<tr>
-
-<td style="
+.top{
     background:linear-gradient(135deg,#0E4A63,#1AB0B7);
-    padding:40px 25px;
-">
-
-<table width="100%%">
-
-<tr>
-
-<td align="left">
-
-%s
-
-</td>
-
-<td align="right">
-
-<img
-    src="cid:truvishLogo"
-    width="130"
-    alt="Truvish Logo"
-/>
-
-</td>
-
-</tr>
-
-</table>
-
-<div style="
+    padding:45px 20px;
     text-align:center;
-    margin-top:30px;
-">
+}
 
-<h1 style="
-    color:white;
-    margin:0;
+.content{
+    padding:40px 28px;
+    text-align:center;
+}
+
+.heading{
     font-size:34px;
-    font-weight:700;
-">
-
-Congratulations 🎉
-
-</h1>
-
-<p style="
-    color:rgba(255,255,255,0.92);
-    margin-top:14px;
-    font-size:16px;
-    line-height:1.7;
-">
-
-Your reward voucher is ready
-
-</p>
-
-</div>
-
-</td>
-
-</tr>
-
-<!-- BODY -->
-<tr>
-
-<td style="
-    padding:40px 34px;
-">
-
-<p style="
-    margin:0;
-    font-size:18px;
-    color:#1D2E39;
-    line-height:1.8;
-">
-
-Hello <b>%s</b>,
-
-</p>
-
-<p style="
-    margin-top:22px;
-    font-size:16px;
-    color:#4B5563;
-    line-height:1.9;
-">
-
-You have received a reward voucher
-from <b>Truvish Solutions</b>.
-
-<br><br>
-
-Use the voucher code below to redeem
-your rewards instantly.
-
-</p>
-
-<!-- VOUCHER -->
-<div style="
-    margin-top:34px;
-    background:linear-gradient(135deg,#0E4A63,#1AB0B7);
-    border-radius:22px;
-    padding:36px 20px;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(26,176,183,0.25);
-">
-
-<p style="
-    color:rgba(255,255,255,0.85);
-    font-size:13px;
-    letter-spacing:1px;
+    font-weight:800;
+    color:#0E4A63;
     margin-bottom:16px;
-">
+}
 
-YOUR VOUCHER CODE
+.subtext{
+    font-size:16px;
+    line-height:1.9;
+    color:#1D2E39;
+    margin-top:15px;
+}
 
-</p>
+.voucher-box{
+    margin-top:35px;
+    background:linear-gradient(135deg,#F3F7FA,#EAF7F8);
+    border:2px dashed #1AB0B7;
+    border-radius:22px;
+    padding:30px 20px;
+}
 
-<h2 style="
-    color:white;
-    margin:0;
-    font-size:34px;
-    letter-spacing:4px;
+.voucher-label{
+    font-size:13px;
+    color:#0E4A63;
+    letter-spacing:2px;
+    margin-bottom:16px;
     font-weight:700;
-">
+}
 
-%s
+.voucher-code{
+    font-size:32px;
+    font-weight:800;
+    color:#0E4A63;
+    letter-spacing:4px;
+    word-break:break-word;
+}
 
-</h2>
+.validity-box{
+    margin-top:24px;
+    background:#EAF7F8;
+    border-radius:16px;
+    padding:16px;
+}
 
-</div>
+.validity-text{
+    color:#0E4A63;
+    font-size:15px;
+    font-weight:700;
+}
 
-<!-- BUTTON -->
-<div style="
-    margin-top:36px;
-    text-align:center;
-">
+.redeem-btn{
+    display:inline-block;
+    margin-top:32px;
+    background:linear-gradient(135deg,#0E4A63,#1AB0B7);
+    color:#ffffff !important;
+    text-decoration:none;
+    padding:16px 34px;
+    border-radius:16px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    box-shadow:0 10px 20px rgba(26,176,183,0.25);
+}
 
-<a href="https://truvish.com"
-   style="
-      display:inline-block;
-      background:#1AB0B7;
-      color:white;
-      text-decoration:none;
-      padding:16px 34px;
-      border-radius:14px;
-      font-size:16px;
-      font-weight:700;
-   ">
+.section{
+    margin-top:35px;
+    background:#F8FBFC;
+    border-radius:20px;
+    padding:26px;
+    text-align:left;
+    border:1px solid #E1EEF2;
+}
 
-Redeem Now
+.section h3{
+    margin-top:0;
+    margin-bottom:18px;
+    color:#0E4A63;
+    font-size:21px;
+}
 
-</a>
-
-</div>
-
-<!-- FOOTER -->
-<div style="
-    margin-top:45px;
-    padding-top:24px;
-    border-top:1px solid #E5E7EB;
-    text-align:center;
-">
-
-<img
-    src="cid:truvishLogo"
-    width="110"
-    alt="Truvish Footer Logo"
-    style="margin-bottom:14px;"
-/>
-
-<p style="
-    color:#6B7280;
-    font-size:14px;
+.section p{
+    margin:12px 0;
     line-height:1.8;
-    margin:0;
-">
+    color:#1D2E39;
+    font-size:15px;
+}
 
-Thank you for choosing
-<b>Truvish Solutions</b>.
+.footer{
+    background:#0E4A63;
+    padding:32px 20px;
+    text-align:center;
+}
 
-</p>
+.footer-title{
+    color:#ffffff;
+    font-size:18px;
+    font-weight:700;
+}
 
-<p style="
+.footer-text{
     margin-top:12px;
-    color:#9CA3AF;
-    font-size:12px;
-    line-height:1.7;
-">
+    color:#D9EDF2;
+    font-size:13px;
+    line-height:1.8;
+}
 
-This email was sent automatically.
-Please do not reply to this email.
+.highlight{
+    color:#1AB0B7;
+    font-weight:700;
+}
 
-</p>
+@media only screen and (max-width:600px){
+
+    .content{
+        padding:32px 18px;
+    }
+
+    .heading{
+        font-size:28px;
+    }
+
+    .voucher-code{
+        font-size:24px;
+        letter-spacing:2px;
+    }
+
+    .section{
+        padding:22px;
+    }
+
+    .redeem-btn{
+        width:100%%;
+        box-sizing:border-box;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="card">
+
+    <!-- TOP HEADER -->
+    <div class="top">
+
+        %s
+
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <div class="heading">
+            Congratulations 🎉
+        </div>
+
+        <div class="subtext">
+
+            Hey <b>%s</b>,<br/><br/>
+
+            <b>%s</b> has sent you an exclusive reward voucher 🎁<br/>
+
+            Follow the instructions below and redeem your
+            favourite gift vouchers using your unique code.
+
+        </div>
+
+        <!-- VOUCHER -->
+        <div class="voucher-box">
+
+            <div class="voucher-label">
+                YOUR UNIQUE VOUCHER CODE
+            </div>
+
+            <div class="voucher-code">
+                %s
+            </div>
+
+        </div>
+
+        <!-- VALIDITY -->
+        <div class="validity-box">
+
+            <div class="validity-text">
+                📅 Valid For %s
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+        <a
+            href="https://redeem.truvish.com/"
+            class="redeem-btn"
+        >
+            REDEEM NOW
+        </a>
+
+        <!-- HOW TO REDEEM -->
+        <div class="section">
+
+            <h3>How To Redeem</h3>
+
+            <p>1. Open TruVish website or mobile app.</p>
+
+            <p>2. Login to your TruVish account.</p>
+
+            <p>3. Open the Redeem Voucher section.</p>
+
+            <p>4. Enter your voucher code.</p>
+
+            <p>5. Enjoy your rewards instantly.</p>
+
+        </div>
+
+        <!-- TERMS -->
+        <div class="section">
+
+            <h3>Terms & Conditions</h3>
+
+            <p>• Voucher valid for limited time only.</p>
+
+            <p>• Voucher can be redeemed once only.</p>
+
+            <p>• Voucher cannot be exchanged for cash.</p>
+
+            <p>• TruVish reserves the right to modify or cancel offers anytime.</p>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+
+        <div class="footer-title">
+            TruVish Rewards
+        </div>
+
+        <div class="footer-text">
+
+            Rewards • Loyalty • Gift Vouchers<br/>
+
+            <span class="highlight">
+                Trusted Digital Reward Platform
+            </span>
+
+        </div>
+
+    </div>
 
 </div>
 
-</td>
-
-</tr>
-
-</table>
-
-</td>
-
-</tr>
-
-</table>
+</div>
 
 </body>
-
 </html>
-
 """.formatted(
                     clientLogoHtml,
                     name,
-                    voucherCode
+                    companyName,
+                    voucherCode,
+                    validityText
             );
 
-            // =================================================
-            // SET HTML
-            // =================================================
-            helper.setText(html, true);
+            // =========================
+            // RESEND
+            // =========================
 
-            // =================================================
-            // TRUVISH LOGO
-            // =================================================
-            Resource truvishLogo =
-                    new ClassPathResource(
-                            "static/TV-BG.png"
-                    );
+            Resend resend = new Resend(resendApiKey);
 
-            if (truvishLogo.exists()) {
+            CreateEmailOptions request =
+                    CreateEmailOptions.builder()
+                            .from("TruVish <noreply@truvish.com>")
+                            .to(toEmail)
+                            .subject("🎁 Your Reward Voucher from "
+                                    + companyName)
+                            .html(html)
+                            .build();
 
-                helper.addInline(
-                        "truvishLogo",
-                        truvishLogo
-                );
+            resend.emails().send(request);
 
-            } else {
-
-                logger.error(
-                        "Truvish logo not found: static/TV-BG.png"
-                );
-            }
-
-            // =================================================
-            // SEND MAIL
-            // =================================================
-            mailSender.send(message);
-
-            logger.info(
-                    "Voucher email sent successfully to {}",
-                    toEmail
-            );
+            logger.info("EMAIL SENT SUCCESSFULLY TO {}", toEmail);
 
         } catch (Exception e) {
 
-            logger.error(
-                    "Failed to send voucher email",
-                    e
-            );
+            logger.error("FAILED TO SEND EMAIL", e);
 
             throw new RuntimeException(
-                    "Failed to send email"
+                    "Email sending failed : " + e.getMessage()
             );
         }
     }

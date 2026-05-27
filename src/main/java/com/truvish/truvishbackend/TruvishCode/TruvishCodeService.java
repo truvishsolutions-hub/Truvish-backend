@@ -76,29 +76,53 @@ public class TruvishCodeService {
     }
 
     public List<ClientHistoryItem> history(String clientName) {
-        List<TruvishCode> codes = repo.findByClientNameOrderByTruvishCodeTimestampDesc(clientName);
+
+        List<TruvishCode> codes =
+                repo.findByClientNameOrderByTruvishCodeTimestampDesc(clientName);
+
         List<ClientHistoryItem> items = new ArrayList<>();
 
         for (TruvishCode code : codes) {
-            Long originalAmount = code.getOriginalCodeValue() != null
-                    ? code.getOriginalCodeValue()
-                    : code.getTruvishCodeValue();
+
+            Long originalAmount =
+                    code.getOriginalCodeValue() != null
+                            ? code.getOriginalCodeValue()
+                            : code.getTruvishCodeValue();
 
             LocalDateTime expiryDate = null;
-            if (code.getTruvishCodeTimestamp() != null && code.getValidity() != null) {
-                expiryDate = code.getTruvishCodeTimestamp().plusMonths(code.getValidity());
+
+            if (code.getTruvishCodeTimestamp() != null
+                    && code.getValidity() != null) {
+
+                expiryDate =
+                        code.getTruvishCodeTimestamp()
+                                .plusMonths(code.getValidity());
             }
 
-            items.add(new ClientHistoryItem(
-                    code.getTruvishCodeTimestamp(),
-                    code.getTruvishIdCodeNumber(),
-                    originalAmount,
-                    code.getTruvishCodeValue(),
-                    "Code assigned",
-                    "CODE_ASSIGNED",
-                    code.getValidity(),
-                    expiryDate
-            ));
+            // ======================================
+            // CODE ASSIGNED
+            // ======================================
+
+            items.add(
+                    new ClientHistoryItem(
+                            code.getTruvishCodeTimestamp(),
+                            code.getTruvishIdCodeNumber(),
+                            originalAmount,
+                            code.getTruvishCodeValue(),
+                            "Code assigned",
+                            "CODE_ASSIGNED",
+                            code.getValidity(),
+                            expiryDate,
+                            "-", // redeemedBrand
+                            "-", // redeemedPhone
+                            code.getTruvishCodeTimestamp(),
+                            null // redeemedDate
+                    )
+            );
+
+            // ======================================
+            // REDEMPTIONS
+            // ======================================
 
             List<UserRedemption> redemptions =
                     userRepo.findByUserTruvishCodeOrderByUserBrandTimeTempAsc(
@@ -106,20 +130,39 @@ public class TruvishCodeService {
                     );
 
             for (UserRedemption redemption : redemptions) {
-                items.add(new ClientHistoryItem(
-                        redemption.getUserBrandTimeTemp(),
-                        redemption.getUserTruvishCode(),
-                        redemption.getUserBrandValue(),
-                        redemption.getAfterBalance(),
-                        redemption.getHistoryMessage(),
-                        redemption.getRedeemStatus(),
-                        code.getValidity(),
-                        expiryDate
-                ));
+
+                items.add(
+                        new ClientHistoryItem(
+                                redemption.getUserBrandTimeTemp(),
+                                redemption.getUserTruvishCode(),
+                                redemption.getUserBrandValue(),
+                                redemption.getAfterBalance(),
+                                redemption.getHistoryMessage(),
+                                redemption.getRedeemStatus(),
+                                code.getValidity(),
+                                expiryDate,
+
+                                // NEW
+                                redemption.getUserBrandName(),
+
+                                // NEW
+                                redemption.getUserPhoneNumber(),
+
+                                // NEW
+                                code.getTruvishCodeTimestamp(),
+
+                                // NEW
+                                redemption.getUserBrandTimeTemp()
+                        )
+                );
             }
         }
 
-        items.sort(Comparator.comparing(ClientHistoryItem::getEventTime).reversed());
+        items.sort(
+                Comparator.comparing(ClientHistoryItem::getEventTime)
+                        .reversed()
+        );
+
         return items;
     }
 

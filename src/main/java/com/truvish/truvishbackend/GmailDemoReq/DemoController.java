@@ -1,4 +1,4 @@
-package com.truvish.truvishbackend.GmailDemoReq;
+ package com.truvish.truvishbackend.GmailDemoReq;
 
 import com.truvish.truvishbackend.DemoRequest.dto.DemoRequestDto;
 
@@ -11,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class DemoController {
 
     private final EmailService emailService;
@@ -28,9 +29,6 @@ public class DemoController {
 
         try {
 
-            // =====================================================
-            // CONVERT OLD REQUEST TO DTO
-            // =====================================================
             DemoRequestDto dto =
                     new DemoRequestDto();
 
@@ -46,9 +44,6 @@ public class DemoController {
                     request.getPhone()
             );
 
-            // =====================================================
-            // SEND EMAIL
-            // =====================================================
             emailService.sendDemoRequestEmail(dto);
 
             return ResponseEntity.ok(
