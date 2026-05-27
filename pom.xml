@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -6,9 +7,9 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <!-- SPRING BOOT PARENT -->
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -16,9 +17,9 @@
         <relativePath/>
     </parent>
 
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <!-- PROJECT INFO -->
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <groupId>com.truvish</groupId>
     <artifactId>truvish-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
@@ -26,68 +27,58 @@
     <name>truvish-backend</name>
     <description>TruVish Backend API</description>
 
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <!-- JAVA VERSION -->
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <properties>
         <java.version>17</java.version>
         <lombok.version>1.18.32</lombok.version>
     </properties>
 
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <!-- DEPENDENCIES -->
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <dependencies>
 
-        <!-- ========================= -->
         <!-- SPRING WEB -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- ========================= -->
         <!-- SPRING DATA JPA -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
-        <!-- ========================= -->
         <!-- VALIDATION -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- ========================= -->
-        <!-- GMAIL SMTP / MAIL -->
-        <!-- ========================= -->
+        <!-- SPRING MAIL -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
+
+        <!-- RESEND JAVA SDK -->
         <dependency>
             <groupId>com.resend</groupId>
             <artifactId>resend-java</artifactId>
             <version>3.1.0</version>
         </dependency>
 
-        <!-- ========================= -->
         <!-- POSTGRESQL -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- ========================= -->
         <!-- LOMBOK -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -95,9 +86,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- ========================= -->
         <!-- DEVTOOLS -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -105,9 +94,7 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- ========================= -->
         <!-- TEST -->
-        <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -116,16 +103,14 @@
 
     </dependencies>
 
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <!-- BUILD -->
-    <!-- ===================================================== -->
+    <!-- ========================================= -->
     <build>
 
         <plugins>
 
-            <!-- ========================= -->
             <!-- MAVEN COMPILER -->
-            <!-- ========================= -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -145,9 +130,7 @@
                 </configuration>
             </plugin>
 
-            <!-- ========================= -->
             <!-- SPRING BOOT -->
-            <!-- ========================= -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
