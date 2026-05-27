@@ -58,12 +58,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- SPRING MAIL -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-
         <!-- RESEND JAVA SDK -->
         <dependency>
             <groupId>com.resend</groupId>

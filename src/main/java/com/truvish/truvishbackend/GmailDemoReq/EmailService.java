@@ -1,59 +1,38 @@
 package com.truvish.truvishbackend.GmailDemoReq;
 
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
+
 import com.truvish.truvishbackend.DemoRequest.dto.DemoRequestDto;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
+
+    @Value("${app.mail.sender-name}")
+    private String senderName;
+
+    @Value("${app.mail.sender-email}")
+    private String senderEmail;
 
     @Value("${app.mail.receiver}")
     private String receiverEmail;
-
-    @Value("${spring.mail.username}")
-    private String senderEmail;
-
-    public EmailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
     // =========================================================
     // SEND DEMO REQUEST EMAIL
     // =========================================================
     public void sendDemoRequestEmail(
             DemoRequestDto request
-    ) throws MessagingException {
+    ) {
 
-        MimeMessage message =
-                mailSender.createMimeMessage();
-
-        MimeMessageHelper helper =
-                new MimeMessageHelper(
-                        message,
-                        false,
-                        "UTF-8"
-                );
-
-        helper.setFrom(senderEmail);
-
-        helper.setTo(receiverEmail);
-
-        helper.setReplyTo(request.getEmail());
-
-        helper.setSubject(
-                "New Book a Demo Request - TruVish"
-        );
+        Resend resend = new Resend(resendApiKey);
 
         String emailBody = """
-
 New Book a Demo Request - TruVish
 
 Name: %s
@@ -61,7 +40,6 @@ Email: %s
 Phone: %s
 
 This email was sent from TruVish Book a Demo form.
-
 """
                 .formatted(
                         safe(request.getName()),
@@ -69,9 +47,21 @@ This email was sent from TruVish Book a Demo form.
                         safe(request.getPhone())
                 );
 
-        helper.setText(emailBody, false);
+        CreateEmailOptions params =
+                CreateEmailOptions.builder()
+                        .from(
+                                senderName
+                                        + " <"
+                                        + senderEmail
+                                        + ">"
+                        )
+                        .to(receiverEmail)
+                        .replyTo(request.getEmail())
+                        .subject("New Book a Demo Request - TruVish")
+                        .text(emailBody)
+                        .build();
 
-        mailSender.send(message);
+        resend.emails().send(params);
     }
 
     // =========================================================

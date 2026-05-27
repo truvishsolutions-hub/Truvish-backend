@@ -1,18 +1,12 @@
 package com.truvish.truvishbackend.ClientEmailService;
 
-import jakarta.mail.internet.MimeMessage;
+import com.resend.Resend;
+import com.resend.services.emails.model.CreateEmailOptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
 import org.springframework.stereotype.Service;
 
@@ -28,15 +22,18 @@ public class ClientEmailService {
             );
 
     // =========================================================
-    // MAIL SENDER
+    // RESEND API KEY
     // =========================================================
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${resend.api.key}")
+    private String resendApiKey;
 
     // =========================================================
-    // GMAIL
+    // SENDER
     // =========================================================
-    @Value("${spring.mail.username}")
+    @Value("${app.mail.sender-name}")
+    private String senderName;
+
+    @Value("${app.mail.sender-email}")
     private String senderEmail;
 
     // =========================================================
@@ -126,31 +123,10 @@ public class ClientEmailService {
             }
 
             // =================================================
-            // CREATE MAIL
+            // TRUVISH LOGO URL
             // =================================================
-            MimeMessage message =
-                    mailSender.createMimeMessage();
-
-            MimeMessageHelper helper =
-                    new MimeMessageHelper(
-                            message,
-                            true,
-                            "UTF-8"
-                    );
-
-            // =================================================
-            // MAIL DETAILS
-            // =================================================
-            helper.setFrom(
-                    senderEmail,
-                    "Truvish Solutions"
-            );
-
-            helper.setTo(toEmail);
-
-            helper.setSubject(
-                    "Congratulations! Your Reward is Here 🎉"
-            );
+            String truvishLogoUrl =
+                    backendUrl + "/TV-BG.png";
 
             // =================================================
             // HTML
@@ -211,7 +187,7 @@ public class ClientEmailService {
 <td align="right">
 
 <img
-    src="cid:truvishLogo"
+    src="%s"
     width="130"
     alt="Truvish Logo"
 />
@@ -358,7 +334,7 @@ Redeem Now
 ">
 
 <img
-    src="cid:truvishLogo"
+    src="%s"
     width="110"
     alt="Truvish Footer Logo"
     style="margin-bottom:14px;"
@@ -408,41 +384,33 @@ Please do not reply to this email.
 
 """.formatted(
                     clientLogoHtml,
+                    truvishLogoUrl,
                     name,
-                    voucherCode
+                    voucherCode,
+                    truvishLogoUrl
             );
 
             // =================================================
-            // SET HTML
+            // SEND VIA RESEND
             // =================================================
-            helper.setText(html, true);
+            Resend resend = new Resend(resendApiKey);
 
-            // =================================================
-            // TRUVISH LOGO
-            // =================================================
-            Resource truvishLogo =
-                    new ClassPathResource(
-                            "static/TV-BG.png"
-                    );
+            CreateEmailOptions params =
+                    CreateEmailOptions.builder()
+                            .from(
+                                    senderName
+                                            + " <"
+                                            + senderEmail
+                                            + ">"
+                            )
+                            .to(toEmail)
+                            .subject(
+                                    "Congratulations! Your Reward is Here 🎉"
+                            )
+                            .html(html)
+                            .build();
 
-            if (truvishLogo.exists()) {
-
-                helper.addInline(
-                        "truvishLogo",
-                        truvishLogo
-                );
-
-            } else {
-
-                logger.error(
-                        "Truvish logo not found: static/TV-BG.png"
-                );
-            }
-
-            // =================================================
-            // SEND MAIL
-            // =================================================
-            mailSender.send(message);
+            resend.emails().send(params);
 
             logger.info(
                     "Voucher email sent successfully to {}",
