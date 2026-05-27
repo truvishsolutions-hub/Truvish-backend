@@ -64,16 +64,12 @@
         </dependency>
 
         <!-- ========================= -->
-        <!-- SPRING MAIL -->
+        <!-- GMAIL SMTP / MAIL -->
         <!-- ========================= -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
-
-        <!-- ========================= -->
-        <!-- RESEND JAVA SDK -->
-        <!-- ========================= -->
         <dependency>
             <groupId>com.resend</groupId>
             <artifactId>resend-java</artifactId>
