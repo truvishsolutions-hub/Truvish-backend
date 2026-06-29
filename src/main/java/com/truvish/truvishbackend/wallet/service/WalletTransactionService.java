@@ -12,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.truvish.truvishbackend.exception.ResourceNotFoundException;
+
 import java.math.BigDecimal;
 
 @Service
@@ -44,7 +46,7 @@ public class WalletTransactionService {
 
         Client client = clientRepo.findById(clientId)
                 .orElseThrow(() ->
-                        new RuntimeException(
+                        new ResourceNotFoundException(
                                 "Client not found: " + clientId
                         )
                 );
@@ -57,8 +59,8 @@ public class WalletTransactionService {
 
         try {
             type = TxnType.valueOf(req.getType());
-        } catch (Exception e) {
-            throw new RuntimeException(
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
                     "Type must be CREDIT or DEBIT"
             );
         }
@@ -70,7 +72,9 @@ public class WalletTransactionService {
         BigDecimal amt = req.getAmount();
 
         if (amt == null) {
-            throw new RuntimeException("amount is required");
+            throw new IllegalArgumentException(
+                    "Amount is required"
+            );
         }
 
         amt = amt.abs();
@@ -102,20 +106,17 @@ public class WalletTransactionService {
 
         else {
 
+            if (current.compareTo(amt) < 0) {
+                throw new IllegalArgumentException(
+                        "Insufficient wallet balance. Available balance: "
+                                + current
+                );
+            }
+
             updated = current.subtract(amt);
 
-            // ❌ STOP NEGATIVE BALANCE
-            if (updated.compareTo(BigDecimal.ZERO) < 0) {
-
-                updated = BigDecimal.ZERO;
-
-                // only available balance debit
-                amt = current.negate();
-
-            } else {
-
-                amt = amt.negate();
-            }
+            // Store debit as negative amount in history
+            amt = amt.negate();
         }
 
         // =========================================
@@ -133,15 +134,10 @@ public class WalletTransactionService {
         WalletTransaction tx = new WalletTransaction();
 
         tx.setClient(client);
-
         tx.setType(type);
-
         tx.setAmount(amt);
-
         tx.setDescription(req.getDescription());
-
         tx.setReferenceType(req.getReferenceType());
-
         tx.setReferenceId(req.getReferenceId());
 
         return txnRepo.save(tx);
