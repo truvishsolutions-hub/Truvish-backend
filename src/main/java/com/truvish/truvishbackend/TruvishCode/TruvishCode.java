@@ -3,6 +3,11 @@ package com.truvish.truvishbackend.TruvishCode;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import java.util.List;
+
+import jakarta.persistence.ElementCollection;
+
+import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
 @Entity
 @Table(name = "truvish_code_generator")
 public class TruvishCode {
@@ -16,7 +21,10 @@ public class TruvishCode {
     private String truvishIdCodeNumber;
     private LocalDateTime truvishCodeTimestamp;
     private Boolean truvishIdIsPartialRedeemAllowed;
-    private String truvishCodeStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "truvish_code_status")
+    private VoucherStatus truvishCodeStatus;
 
     private String clientName;
 
@@ -31,11 +39,11 @@ public class TruvishCode {
 
     private String clientTheme;
 
-    @Column(name = "client_brand")
-    private String[] clientBrand;
+    @ElementCollection
+    private List<String> clientBrand;
 
-    @Column(name = "client_category")
-    private String[] clientCategory;
+    @ElementCollection
+    private List<String> clientCategory;
 
     @Column(name = "client_theme_img")
     private String clientThemeImg;
@@ -46,6 +54,10 @@ public class TruvishCode {
     public Long getClientId() { return clientId; }
     public void setClientId(Long clientId) { this.clientId = clientId; }
 
+
+
+
+
     public String getTruvishIdCodeNumber() { return truvishIdCodeNumber; }
     public void setTruvishIdCodeNumber(String truvishIdCodeNumber) { this.truvishIdCodeNumber = truvishIdCodeNumber; }
 
@@ -55,8 +67,14 @@ public class TruvishCode {
     public Boolean getTruvishIdIsPartialRedeemAllowed() { return truvishIdIsPartialRedeemAllowed; }
     public void setTruvishIdIsPartialRedeemAllowed(Boolean truvishIdIsPartialRedeemAllowed) { this.truvishIdIsPartialRedeemAllowed = truvishIdIsPartialRedeemAllowed; }
 
-    public String getTruvishCodeStatus() { return truvishCodeStatus; }
-    public void setTruvishCodeStatus(String truvishCodeStatus) { this.truvishCodeStatus = truvishCodeStatus; }
+    public VoucherStatus getTruvishCodeStatus() {
+        return truvishCodeStatus;
+    }
+    public void setTruvishCodeStatus(
+            VoucherStatus truvishCodeStatus
+    ) {
+        this.truvishCodeStatus = truvishCodeStatus;
+    }
 
     public String getClientName() { return clientName; }
     public void setClientName(String clientName) { this.clientName = clientName; }
@@ -76,11 +94,21 @@ public class TruvishCode {
     public String getClientTheme() { return clientTheme; }
     public void setClientTheme(String clientTheme) { this.clientTheme = clientTheme; }
 
-    public String[] getClientBrand() { return clientBrand; }
-    public void setClientBrand(String[] clientBrand) { this.clientBrand = clientBrand; }
+    public List<String> getClientBrand() {
+        return clientBrand;
+    }
 
-    public String[] getClientCategory() { return clientCategory; }
-    public void setClientCategory(String[] clientCategory) { this.clientCategory = clientCategory; }
+    public void setClientBrand(List<String> clientBrand) {
+        this.clientBrand = clientBrand;
+    }
+
+    public List<String> getClientCategory() {
+        return clientCategory;
+    }
+
+    public void setClientCategory(List<String> clientCategory) {
+        this.clientCategory = clientCategory;
+    }
 
     public String getClientThemeImg() { return clientThemeImg; }
     public void setClientThemeImg(String clientThemeImg) { this.clientThemeImg = clientThemeImg; }

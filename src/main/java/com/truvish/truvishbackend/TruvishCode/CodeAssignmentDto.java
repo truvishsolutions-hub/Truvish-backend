@@ -1,14 +1,25 @@
 package com.truvish.truvishbackend.TruvishCode;
 
+import jakarta.validation.constraints.*;
+
+import java.util.List;
+
 public class CodeAssignmentDto {
+
+    // quantity code
+    @NotNull
+    @Positive
+    private Integer quantity;
 
     // optional
     private Long truvishId;
 
     // ✅ IMPORTANT — wallet debit ke liye
+    @NotNull
     private Long clientId;
 
     // company name
+    @NotBlank
     private String clientName;
 
     // client logo
@@ -18,23 +29,36 @@ public class CodeAssignmentDto {
     private String clientTheme;
 
     // brands
-    private String[] clientBrand;
+    private List<String> clientBrand;
+
 
     // ✅ NEW: category
-    private String[] clientCategory;
+    private List<String> clientCategory;
 
     // voucher value
+    @NotNull
+    @Positive
     private Long truvishCodeValue;
 
     // validity
+    @NotNull
+    @Min(1)
     private Integer validity;
 
     // theme image
     private String clientThemeImg;
 
+
     // ======================
     // GETTERS & SETTERS
     // ======================
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
 
     public Long getTruvishId() {
         return truvishId;
@@ -76,21 +100,21 @@ public class CodeAssignmentDto {
         this.clientTheme = clientTheme;
     }
 
-    public String[] getClientBrand() {
+    public List<String> getClientBrand() {
         return clientBrand;
     }
 
-    public void setClientBrand(String[] clientBrand) {
-        this.clientBrand = clientBrand;
+    public void setClientCategory(List<String> clientCategory) {
+        this.clientCategory = clientCategory;
     }
 
     // ✅ NEW
-    public String[] getClientCategory() {
+    public List<String> getClientCategory() {
         return clientCategory;
     }
 
-    public void setClientCategory(String[] clientCategory) {
-        this.clientCategory = clientCategory;
+    public void setClientBrand(List<String> clientBrand) {
+        this.clientBrand = clientBrand;
     }
 
     public Long getTruvishCodeValue() {

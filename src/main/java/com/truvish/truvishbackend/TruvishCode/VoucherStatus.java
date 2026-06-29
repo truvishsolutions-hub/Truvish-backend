@@ -1,4 +1,8 @@
 package com.truvish.truvishbackend.TruvishCode;
 
-public class VoucherStatus {
+public enum VoucherStatus {
+    ACTIVE,
+    INACTIVE,
+    REDEEMED,
+    EXPIRED
 }

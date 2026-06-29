@@ -3,6 +3,8 @@ package com.truvish.truvishbackend.TruvishCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/client")
 public class CodeAdminController {
@@ -14,7 +16,12 @@ public class CodeAdminController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<TruvishCode> updateClient(@RequestBody CodeAssignmentDto dto) {
-        return ResponseEntity.ok(service.updateClient(dto));
+    public ResponseEntity<List<TruvishCode>> updateClient(
+            @RequestBody CodeAssignmentDto dto
+    ) {
+
+        return ResponseEntity.ok(
+                service.updateClient(dto)
+        );
     }
 }

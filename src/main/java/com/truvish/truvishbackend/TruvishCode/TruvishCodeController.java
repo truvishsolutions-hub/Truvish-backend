@@ -9,6 +9,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.file.*;
 import java.util.*;
 
+import jakarta.validation.Valid;
+
+
+
 @RestController
 @RequestMapping("/api/truvish")
 public class TruvishCodeController {
@@ -37,20 +41,29 @@ public class TruvishCodeController {
         }
     }
 
-    @PostMapping("/update-client")
-    public ResponseEntity<?> updateClient(@RequestBody CodeAssignmentDto dto) {
-        try {
-            return ResponseEntity.ok(service.updateClient(dto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    //Duplicate Problem//
+
+    @PostMapping("/create-voucher")
+    public ResponseEntity<?> updateClient(
+            @Valid
+            @RequestBody CodeAssignmentDto dto
+    ) {
+        return ResponseEntity.ok(
+                service.updateClient(dto)
+        );
     }
 
     // ✅ now returns List<ClientHistoryItem>
     @GetMapping("/history/{clientName}")
-    public ResponseEntity<?> history(@PathVariable String clientName) {
+    public ResponseEntity<?> history(
+            @PathVariable String clientName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
         try {
-            return ResponseEntity.ok(service.history(clientName));
+            return ResponseEntity.ok(
+                    service.history(clientName, page, size)
+            );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

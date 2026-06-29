@@ -1,5 +1,7 @@
 package com.truvish.truvishbackend.TruvishCode;
 
+import java.util.List;
+
 public class VerifyCodeResponse {
 
     private String code;
@@ -9,8 +11,8 @@ public class VerifyCodeResponse {
     private String clientImg;
     private Integer validity;
     private String clientThemeImg;
-    private String[] clientBrand;
-    private String[] clientCategory;
+    private List<String> clientBrand;
+    private List<String> clientCategory;
 
     public VerifyCodeResponse(
             String code,
@@ -20,8 +22,8 @@ public class VerifyCodeResponse {
             String clientImg,
             Integer validity,
             String clientThemeImg,
-            String[] clientBrand,
-            String[] clientCategory
+            List<String> clientBrand,
+            List<String> clientCategory
     ) {
         this.code = code;
         this.status = status;
@@ -62,11 +64,11 @@ public class VerifyCodeResponse {
         return clientThemeImg;
     }
 
-    public String[] getClientBrand() {
+    public List<String> getClientBrand() {
         return clientBrand;
     }
 
-    public String[] getClientCategory() {
+    public List<String> getClientCategory() {
         return clientCategory;
     }
 }
