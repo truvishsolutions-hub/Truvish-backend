@@ -2,6 +2,7 @@ package com.truvish.truvishbackend.redemption;
 
 import com.truvish.truvishbackend.TruvishCode.TruvishCode;
 import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
 import com.truvish.truvishbackend.voucherinventory.VoucherInventory;
 import com.truvish.truvishbackend.voucherinventory.VoucherInventoryRepository;
 import com.truvish.truvishbackend.voucherinventory.VoucherRedeemedLog;
@@ -9,10 +10,13 @@ import com.truvish.truvishbackend.voucherinventory.VoucherRedeemedLogRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Transactional
@@ -69,14 +73,14 @@ public class RedemptionService {
         TruvishCode truvish = codeRepo.findByTruvishIdCodeNumber(normalizedCode)
                 .orElseThrow(() -> new RuntimeException("Invalid Code"));
 
-        if (!"ACTIVE".equalsIgnoreCase(truvish.getTruvishCodeStatus())) {
+        if (truvish.getTruvishCodeStatus() != VoucherStatus.ACTIVE) {
             throw new RuntimeException("Code is INACTIVE");
         }
 
         Long currentBalance = truvish.getTruvishCodeValue();
         if (currentBalance == null || currentBalance <= 0) {
             truvish.setTruvishCodeValue(0L);
-            truvish.setTruvishCodeStatus("INACTIVE");
+            truvish.setTruvishCodeStatus(VoucherStatus.INACTIVE);
             codeRepo.save(truvish);
             throw new RuntimeException("Code balance is 0");
         }
@@ -174,7 +178,11 @@ public class RedemptionService {
         voucherInventoryRepo.save(voucher);
 
         truvish.setTruvishCodeValue(afterBalance);
-        truvish.setTruvishCodeStatus(afterBalance == 0 ? "INACTIVE" : "ACTIVE");
+        truvish.setTruvishCodeStatus(
+                afterBalance == 0
+                        ? VoucherStatus.INACTIVE
+                        : VoucherStatus.ACTIVE
+        );
         codeRepo.save(truvish);
 
         return new RedemptionResponse(
@@ -192,13 +200,13 @@ public class RedemptionService {
     }
 
     private void validateBrandAllowedForClient(TruvishCode truvish, String brandName) {
-        String[] allowedBrands = truvish.getClientBrand();
+        List<String> allowedBrands = truvish.getClientBrand();
 
-        if (allowedBrands == null || allowedBrands.length == 0) {
+        if (allowedBrands == null || allowedBrands.isEmpty()) {
             throw new RuntimeException("No brand is assigned to this code");
         }
 
-        boolean matched = Arrays.stream(allowedBrands)
+        boolean matched = allowedBrands.stream()
                 .filter(v -> v != null && !v.trim().isBlank())
                 .anyMatch(v -> v.trim().equalsIgnoreCase(brandName));
 
