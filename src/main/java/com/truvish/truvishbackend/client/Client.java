@@ -3,6 +3,7 @@ package com.truvish.truvishbackend.client;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(name = "client_request",
@@ -15,6 +16,9 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(name="mobile_number", nullable = false, length = 15)
     private String mobileNumber;
@@ -54,6 +58,16 @@ public class Client {
 
     public String getMobileNumber() { return mobileNumber; }
     public void setMobileNumber(String mobileNumber) { this.mobileNumber = mobileNumber; }
+
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
 
     public String getCompanyName() { return companyName; }
     public void setCompanyName(String companyName) { this.companyName = companyName; }
