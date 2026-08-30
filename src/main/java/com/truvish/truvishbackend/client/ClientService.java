@@ -1,27 +1,44 @@
 package com.truvish.truvishbackend.client;
 
+import com.truvish.truvishbackend.TruvishCode.TruvishCode;
 import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
 import com.truvish.truvishbackend.common.FileStorageService;
+import com.truvish.truvishbackend.redemption.UserRedemption;
 import com.truvish.truvishbackend.redemption.UserRedemptionRepository;
 import com.truvish.truvishbackend.wallet.TxnStatus;
 import com.truvish.truvishbackend.wallet.TxnType;
 import com.truvish.truvishbackend.wallet.WalletTransaction;
 import com.truvish.truvishbackend.wallet.WalletTransactionRepository;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientService {
 
     private final ClientRepository repo;
+
     private final FileStorageService storage;
+
     private final WalletTransactionRepository walletRepo;
+
     private final UserRedemptionRepository userRedemptionRepo;
+
     private final TruvishCodeRepository truvishCodeRepo;
+
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
 
     public ClientService(
             ClientRepository repo,
@@ -30,6 +47,7 @@ public class ClientService {
             UserRedemptionRepository userRedemptionRepo,
             TruvishCodeRepository truvishCodeRepo
     ) {
+
         this.repo = repo;
         this.storage = storage;
         this.walletRepo = walletRepo;
@@ -37,160 +55,748 @@ public class ClientService {
         this.truvishCodeRepo = truvishCodeRepo;
     }
 
-    public boolean existsByMobile(String mobileNumber) {
-        return repo.existsByMobileNumber(mobileNumber);
+
+    // =========================================================
+    // EXISTS BY MOBILE
+    // =========================================================
+
+    public boolean existsByMobile(
+            String mobileNumber
+    ) {
+
+        return repo.existsByMobileNumber(
+                mobileNumber
+        );
     }
 
-    public Client getByMobile(String mobileNumber) {
-        return repo.findByMobileNumber(mobileNumber)
-                .orElseThrow(() -> new RuntimeException("Client not found: " + mobileNumber));
+
+    // =========================================================
+    // GET BY MOBILE
+    // =========================================================
+
+    public Client getByMobile(
+            String mobileNumber
+    ) {
+
+        return repo.findByMobileNumber(
+                mobileNumber
+        ).orElseThrow(
+                () -> new RuntimeException(
+                        "Client not found: "
+                                + mobileNumber
+                )
+        );
     }
 
-    public Client create(ClientRequest req, MultipartFile logo) {
+
+    // =========================================================
+    // CREATE CLIENT
+    // =========================================================
+
+    public Client create(
+            ClientRequest req,
+            MultipartFile logo
+    ) {
+
         try {
-            Client c = new Client();
 
-            c.setMobileNumber(req.getMobileNumber());
-            c.setCompanyName(req.getCompanyName());
-            c.setClientName(req.getClientName());
-            c.setEmail(req.getEmail());
+            Client client =
+                    new Client();
+
+
+            // -------------------------------------------------
+            // BASIC INFORMATION
+            // -------------------------------------------------
+
+            client.setMobileNumber(
+                    req.getMobileNumber()
+            );
+
+            client.setCompanyName(
+                    req.getCompanyName()
+            );
+
+            client.setClientName(
+                    req.getClientName()
+            );
+
+            client.setEmail(
+                    req.getEmail()
+            );
+
+
+            // -------------------------------------------------
+            // INITIAL BALANCE
+            // -------------------------------------------------
 
             if (req.getBalance() != null) {
-                c.setBalance(req.getBalance());
+
+                client.setBalance(
+                        req.getBalance()
+                );
+
             } else {
-                c.setBalance(new BigDecimal("1000.00"));
+
+                client.setBalance(
+                        new BigDecimal("1000.00")
+                );
             }
 
-            if (logo != null && !logo.isEmpty()) {
-                c.setLogoImg(storage.storeFile(logo));
+
+            // -------------------------------------------------
+            // LOGO
+            // -------------------------------------------------
+
+            if (
+                    logo != null
+                            && !logo.isEmpty()
+            ) {
+
+                client.setLogoImg(
+                        storage.storeFile(logo)
+                );
             }
 
-            Client saved = repo.save(c);
 
-            WalletTransaction tx = new WalletTransaction();
-            tx.setClient(saved);
-            tx.setTxnDateTime(LocalDateTime.now());
-            tx.setAmount(saved.getBalance());
-            tx.setType(TxnType.CREDIT);
-            tx.setDescription("Truvish Gifts");
-            tx.setReferenceType("SYSTEM");
-            tx.setReferenceId("WELCOME");
-            tx.setStatus(TxnStatus.SUCCESS);
+            // -------------------------------------------------
+            // SAVE CLIENT
+            // -------------------------------------------------
 
-            walletRepo.save(tx);
+            Client saved =
+                    repo.save(client);
+
+
+            // -------------------------------------------------
+            // WELCOME WALLET TRANSACTION
+            // -------------------------------------------------
+
+            WalletTransaction transaction =
+                    new WalletTransaction();
+
+            transaction.setClient(saved);
+
+            transaction.setTxnDateTime(
+                    LocalDateTime.now()
+            );
+
+            transaction.setAmount(
+                    saved.getBalance()
+            );
+
+            transaction.setType(
+                    TxnType.CREDIT
+            );
+
+            transaction.setDescription(
+                    "Truvish Gifts"
+            );
+
+            transaction.setReferenceType(
+                    "SYSTEM"
+            );
+
+            transaction.setReferenceId(
+                    "WELCOME"
+            );
+
+            transaction.setStatus(
+                    TxnStatus.SUCCESS
+            );
+
+            walletRepo.save(transaction);
+
 
             return saved;
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create client: " + e.getMessage(), e);
+
+            throw new RuntimeException(
+                    "Failed to create client: "
+                            + e.getMessage(),
+                    e
+            );
         }
     }
 
-    public Client get(Long id) {
+
+    // =========================================================
+    // GET CLIENT BY ID
+    // =========================================================
+
+    public Client get(
+            Long id
+    ) {
+
         return repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found: " + id));
+                .orElseThrow(
+                        () -> new RuntimeException(
+                                "Client not found: "
+                                        + id
+                        )
+                );
     }
 
+
+    // =========================================================
+    // GET ALL CLIENTS
+    // =========================================================
+
     public List<Client> list() {
+
         return repo.findAll();
     }
 
+
+    // =========================================================
+    // SEARCH CLIENTS
+    // =========================================================
+
+    public List<Client> search(
+            String value
+    ) {
+
+        if (
+                value == null
+                        || value.trim().isEmpty()
+        ) {
+
+            return repo.findAll();
+        }
+
+
+        return repo.searchClients(
+                value.trim()
+        );
+    }
+
+
+    // =========================================================
+    // SEARCH CLIENTS - PAGINATED
+    // =========================================================
+
+    public Page<Client> search(
+            String value,
+            Pageable pageable
+    ) {
+
+        if (
+                value == null
+                        || value.trim().isEmpty()
+        ) {
+
+            return repo.findAll(pageable);
+        }
+
+
+        return repo.searchClients(
+                value.trim(),
+                pageable
+        );
+    }
+
+
+    // =========================================================
+    // CLIENT OVERVIEW
+    //
+    // DIGITAL CODES ONLY
+    // =========================================================
+
     public List<ClientOverviewResponse> listOverview() {
-        return repo.findAll().stream()
+
+        List<UserRedemption> allRedemptions =
+                userRedemptionRepo.findAll();
+
+        List<TruvishCode> allCodes =
+                truvishCodeRepo.findAll();
+
+
+        return repo.findAll()
+                .stream()
                 .map(client -> {
-                    BigDecimal totalLoad = walletRepo.sumTotalLoadByClientId(client.getId());
-                    if (totalLoad == null) totalLoad = BigDecimal.ZERO;
 
-                    Long codesDistributed = truvishCodeRepo.countByClientId(client.getId());
-                    Long distributedValue = truvishCodeRepo.sumDistributedValueByClientId(client.getId());
-                    if (distributedValue == null) distributedValue = 0L;
+                    Long clientId =
+                            client.getId();
 
-                    Long redeemedCount = userRedemptionRepo.countByClientId(client.getId());
-                    Long redeemedAmount = userRedemptionRepo.sumRedeemedAmountByClientId(client.getId());
-                    if (redeemedAmount == null) redeemedAmount = 0L;
+
+                    // -------------------------------------------------
+                    // TOTAL LOAD
+                    // -------------------------------------------------
+
+                    BigDecimal totalLoad =
+                            walletRepo.sumTotalLoadByClientId(
+                                    clientId
+                            );
+
+                    if (totalLoad == null) {
+
+                        totalLoad =
+                                BigDecimal.ZERO;
+                    }
+
+
+                    // -------------------------------------------------
+                    // DIGITAL CODES DISTRIBUTED
+                    // -------------------------------------------------
+
+                    Long codesDistributed =
+                            truvishCodeRepo.countByClientId(
+                                    clientId
+                            );
+
+                    if (codesDistributed == null) {
+
+                        codesDistributed =
+                                0L;
+                    }
+
+
+                    // -------------------------------------------------
+                    // DIGITAL DISTRIBUTED VALUE
+                    //
+                    // Repository returns Long.
+                    // -------------------------------------------------
+
+                    Long distributedValue =
+                            truvishCodeRepo
+                                    .sumDistributedValueByClientId(
+                                            clientId
+                                    );
+
+                    if (distributedValue == null) {
+
+                        distributedValue =
+                                0L;
+                    }
+
+
+                    // -------------------------------------------------
+                    // DIGITAL CODE NUMBERS
+                    // -------------------------------------------------
+
+                    Set<String> clientCodes =
+                            allCodes
+                                    .stream()
+                                    .filter(
+                                            code ->
+                                                    code.getClientId() != null
+                                                            &&
+                                                            code.getClientId()
+                                                                    .equals(
+                                                                            clientId
+                                                                    )
+                                    )
+                                    .map(
+                                            TruvishCode
+                                                    ::getTruvishIdCodeNumber
+                                    )
+                                    .filter(
+                                            code ->
+                                                    code != null
+                                                            &&
+                                                            !code.isBlank()
+                                    )
+                                    .collect(
+                                            Collectors.toSet()
+                                    );
+
+
+                    // -------------------------------------------------
+                    // REDEEMED COUNT
+                    // -------------------------------------------------
+
+                    Long redeemedCount =
+                            allRedemptions
+                                    .stream()
+                                    .filter(
+                                            redemption ->
+                                                    redemption
+                                                            .getUserTruvishCode()
+                                                            != null
+                                                            &&
+                                                            clientCodes.contains(
+                                                                    redemption
+                                                                            .getUserTruvishCode()
+                                                            )
+                                    )
+                                    .count();
+
+
+                    // -------------------------------------------------
+                    // REDEEMED AMOUNT
+                    // -------------------------------------------------
+
+                    Long redeemedAmount =
+                            allRedemptions
+                                    .stream()
+                                    .filter(
+                                            redemption ->
+                                                    redemption
+                                                            .getUserTruvishCode()
+                                                            != null
+                                                            &&
+                                                            clientCodes.contains(
+                                                                    redemption
+                                                                            .getUserTruvishCode()
+                                                            )
+                                    )
+                                    .map(
+                                            redemption -> {
+
+                                                Long value =
+                                                        redemption
+                                                                .getUserBrandValue();
+
+                                                return value == null
+                                                        ? 0L
+                                                        : value;
+                                            }
+                                    )
+                                    .reduce(
+                                            0L,
+                                            Long::sum
+                                    );
+
+
+                    // -------------------------------------------------
+                    // RESPONSE
+                    // -------------------------------------------------
 
                     return new ClientOverviewResponse(
-                            client.getId(),
+
+                            clientId,
+
                             client.getMobileNumber(),
+
                             client.getCompanyName(),
+
                             client.getClientName(),
+
                             client.getEmail(),
+
                             client.getLogoImg(),
+
                             client.getBalance(),
+
                             totalLoad,
+
                             codesDistributed,
+
                             distributedValue,
+
                             redeemedCount,
+
                             redeemedAmount,
+
                             client.getCreatedAt()
                     );
+
                 })
                 .toList();
     }
 
-    public DashboardSummaryResponse getDashboardSummary() {
-        Long totalClients = repo.count();
-        Long totalUsers = userRedemptionRepo.countDistinctUsers();
 
-        BigDecimal totalCurrentBalance = repo.findAll().stream()
-                .map(client -> client.getBalance() == null ? BigDecimal.ZERO : client.getBalance())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    // =========================================================
+    // DASHBOARD SUMMARY
+    //
+    // DIGITAL DISTRIBUTION ONLY
+    // =========================================================
 
-        BigDecimal totalLoadValue = walletRepo.sumAllLoadedValue();
-        if (totalLoadValue == null) totalLoadValue = BigDecimal.ZERO;
+    public DashboardSummaryResponse
+    getDashboardSummary() {
 
-        Long totalCodesDistributed = truvishCodeRepo.countAllDistributedCodes();
-        Long totalDistributedValue = truvishCodeRepo.sumAllDistributedValue();
-        Long totalRedeemedCount = (long) userRedemptionRepo.findAll().size();
-        Long totalRedeemedAmount = userRedemptionRepo.findAll().stream()
-                .map(item -> item.getUserBrandValue() == null ? 0L : item.getUserBrandValue())
-                .reduce(0L, Long::sum);
+
+        // ---------------------------------------------------------
+        // TOTAL CLIENTS
+        // ---------------------------------------------------------
+
+        Long totalClients =
+                repo.count();
+
+
+        // ---------------------------------------------------------
+        // ALL REDEMPTIONS
+        // ---------------------------------------------------------
+
+        List<UserRedemption> allRedemptions =
+                userRedemptionRepo.findAll();
+
+
+        // ---------------------------------------------------------
+        // UNIQUE USERS
+        // ---------------------------------------------------------
+
+        Set<String> uniqueUsers =
+                new HashSet<>();
+
+
+        allRedemptions.forEach(
+                redemption -> {
+
+                    String phone =
+                            redemption
+                                    .getUserPhoneNumber();
+
+                    if (
+                            phone != null
+                                    && !phone.isBlank()
+                    ) {
+
+                        uniqueUsers.add(
+                                phone.trim()
+                        );
+                    }
+                }
+        );
+
+
+        Long totalUsers =
+                (long) uniqueUsers.size();
+
+
+        // ---------------------------------------------------------
+        // TOTAL CURRENT CLIENT BALANCE
+        // ---------------------------------------------------------
+
+        BigDecimal totalCurrentBalance =
+                repo.findAll()
+                        .stream()
+                        .map(
+                                client ->
+                                        client.getBalance() == null
+                                                ? BigDecimal.ZERO
+                                                : client.getBalance()
+                        )
+                        .reduce(
+                                BigDecimal.ZERO,
+                                BigDecimal::add
+                        );
+
+
+        // ---------------------------------------------------------
+        // TOTAL LOAD VALUE
+        // ---------------------------------------------------------
+
+        BigDecimal totalLoadValue =
+                walletRepo.sumAllLoadedValue();
+
+        if (totalLoadValue == null) {
+
+            totalLoadValue =
+                    BigDecimal.ZERO;
+        }
+
+
+        // ---------------------------------------------------------
+        // TOTAL DIGITAL CODES DISTRIBUTED
+        // ---------------------------------------------------------
+
+        Long totalCodesDistributed =
+                truvishCodeRepo
+                        .countAllDistributedCodes();
+
+        if (totalCodesDistributed == null) {
+
+            totalCodesDistributed =
+                    0L;
+        }
+
+
+        // ---------------------------------------------------------
+        // TOTAL DIGITAL DISTRIBUTED VALUE
+        // ---------------------------------------------------------
+
+        Long totalDistributedValue =
+                truvishCodeRepo
+                        .sumAllDistributedValue();
+
+        if (totalDistributedValue == null) {
+
+            totalDistributedValue =
+                    0L;
+        }
+
+
+        // ---------------------------------------------------------
+        // TOTAL REDEEMED COUNT
+        // ---------------------------------------------------------
+
+        Long totalRedeemedCount =
+                (long) allRedemptions.size();
+
+
+        // ---------------------------------------------------------
+        // TOTAL REDEEMED AMOUNT
+        // ---------------------------------------------------------
+
+        Long totalRedeemedAmount =
+                allRedemptions
+                        .stream()
+                        .map(
+                                item -> {
+
+                                    Long value =
+                                            item.getUserBrandValue();
+
+                                    return value == null
+                                            ? 0L
+                                            : value;
+                                }
+                        )
+                        .reduce(
+                                0L,
+                                Long::sum
+                        );
+
+
+        // ---------------------------------------------------------
+        // RESPONSE
+        // ---------------------------------------------------------
 
         return new DashboardSummaryResponse(
-                totalClients == null ? 0L : totalClients,
-                totalUsers == null ? 0L : totalUsers,
+
+                totalClients == null
+                        ? 0L
+                        : totalClients,
+
+                totalUsers,
+
                 totalCurrentBalance,
+
                 totalLoadValue,
-                totalCodesDistributed == null ? 0L : totalCodesDistributed,
-                totalDistributedValue == null ? 0L : totalDistributedValue,
-                totalRedeemedCount == null ? 0L : totalRedeemedCount,
-                totalRedeemedAmount == null ? 0L : totalRedeemedAmount
+
+                totalCodesDistributed,
+
+                totalDistributedValue,
+
+                totalRedeemedCount,
+
+                totalRedeemedAmount
         );
     }
 
-    public Client update(Long id, ClientRequest req, MultipartFile logo) {
-        try {
-            Client c = get(id);
 
-            c.setMobileNumber(req.getMobileNumber());
-            c.setCompanyName(req.getCompanyName());
-            c.setClientName(req.getClientName());
-            c.setEmail(req.getEmail());
+    // =========================================================
+    // UPDATE CLIENT
+    // =========================================================
+
+    public Client update(
+            Long id,
+            ClientRequest req,
+            MultipartFile logo
+    ) {
+
+        try {
+
+            Client client =
+                    get(id);
+
+
+            // -------------------------------------------------
+            // BASIC INFORMATION
+            // -------------------------------------------------
+
+            client.setMobileNumber(
+                    req.getMobileNumber()
+            );
+
+            client.setCompanyName(
+                    req.getCompanyName()
+            );
+
+            client.setClientName(
+                    req.getClientName()
+            );
+
+            client.setEmail(
+                    req.getEmail()
+            );
+
+
+            // -------------------------------------------------
+            // BALANCE
+            // -------------------------------------------------
 
             if (req.getBalance() != null) {
-                c.setBalance(req.getBalance());
+
+                client.setBalance(
+                        req.getBalance()
+                );
             }
 
-            if (logo != null && !logo.isEmpty()) {
-                if (c.getLogoImg() != null && !c.getLogoImg().isBlank()) {
-                    storage.delete(c.getLogoImg());
+
+            // -------------------------------------------------
+            // LOGO
+            // -------------------------------------------------
+
+            if (
+                    logo != null
+                            && !logo.isEmpty()
+            ) {
+
+                if (
+                        client.getLogoImg() != null
+                                && !client.getLogoImg().isBlank()
+                ) {
+
+                    storage.delete(
+                            client.getLogoImg()
+                    );
                 }
-                c.setLogoImg(storage.storeFile(logo));
+
+
+                client.setLogoImg(
+                        storage.storeFile(logo)
+                );
             }
 
-            return repo.save(c);
+
+            // -------------------------------------------------
+            // SAVE
+            // -------------------------------------------------
+
+            return repo.save(client);
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update client: " + e.getMessage(), e);
+
+            throw new RuntimeException(
+                    "Failed to update client: "
+                            + e.getMessage(),
+                    e
+            );
         }
     }
 
-    public void delete(Long id) {
-        Client c = get(id);
 
-        if (c.getLogoImg() != null && !c.getLogoImg().isBlank()) {
-            storage.delete(c.getLogoImg());
+    // =========================================================
+    // DELETE CLIENT
+    // =========================================================
+
+    public void delete(
+            Long id
+    ) {
+
+        Client client =
+                get(id);
+
+
+        // -------------------------------------------------
+        // DELETE LOGO
+        // -------------------------------------------------
+
+        if (
+                client.getLogoImg() != null
+                        && !client.getLogoImg().isBlank()
+        ) {
+
+            storage.delete(
+                    client.getLogoImg()
+            );
         }
+
+
+        // -------------------------------------------------
+        // DELETE CLIENT
+        // -------------------------------------------------
 
         repo.deleteById(id);
     }

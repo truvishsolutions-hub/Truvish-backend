@@ -7,8 +7,18 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.math.BigDecimal;
 
-public interface WalletTransactionRepository extends JpaRepository<WalletTransaction, Long> {
-    Page<WalletTransaction> findByClient_IdOrderByTxnDateTimeDesc(Long clientId, Pageable pageable);
+public interface WalletTransactionRepository
+        extends JpaRepository<WalletTransaction, Long> {
+
+    Page<WalletTransaction> findByClient_IdOrderByTxnDateTimeDesc(
+            Long clientId,
+            Pageable pageable
+    );
+
+
+    // =========================================================
+    // TOTAL CREDIT / LOAD FOR ONE CLIENT
+    // =========================================================
 
     @Query("""
         select coalesce(sum(w.amount), 0)
@@ -19,6 +29,11 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
     """)
     BigDecimal sumTotalLoadByClientId(Long clientId);
 
+
+    // =========================================================
+    // TOTAL CREDIT / LOAD FOR ALL CLIENTS
+    // =========================================================
+
     @Query("""
         select coalesce(sum(w.amount), 0)
         from WalletTransaction w
@@ -26,4 +41,14 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
           and w.status = com.truvish.truvishbackend.wallet.TxnStatus.SUCCESS
     """)
     BigDecimal sumAllLoadedValue();
+
+
+    // =========================================================
+    // TRUCARD ORDER TRANSACTION CHECK
+    // =========================================================
+
+    boolean existsByReferenceTypeAndReferenceId(
+            String referenceType,
+            String referenceId
+    );
 }

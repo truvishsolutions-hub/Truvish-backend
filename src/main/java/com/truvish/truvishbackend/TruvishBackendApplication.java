@@ -6,6 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class TruvishBackendApplication {
+	public static void internCleaan(){
+
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(TruvishBackendApplication.class, args);

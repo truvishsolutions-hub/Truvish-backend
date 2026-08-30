@@ -15,8 +15,7 @@ import java.time.LocalDateTime;
         }
 )
 public class CodeRedemptionHistory {
-
-    @Id
+ @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

@@ -2,37 +2,181 @@ package com.truvish.truvishbackend.redemption;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface UserRedemptionRepository extends JpaRepository<UserRedemption, Long> {
+public interface UserRedemptionRepository
+        extends JpaRepository<UserRedemption, Long> {
 
-    List<UserRedemption> findByUserPhoneNumber(String phone);
+    // =========================================================
+    // PHONE
+    // =========================================================
 
-    List<UserRedemption> findByUserPhoneNumberOrderByUserBrandTimeTempDesc(String phone);
-
-    List<UserRedemption> findByUserTruvishCodeOrderByUserBrandTimeTempDesc(String code);
-
-    List<UserRedemption> findByUserPhoneNumberOrUserTruvishCodeOrderByUserBrandTimeTempDesc(
-            String phone,
-            String code
+    List<UserRedemption> findByUserPhoneNumber(
+            String userPhoneNumber
     );
 
-    Optional<UserRedemption> findTopByUserTruvishCodeOrderByUserBrandTimeTempDesc(String code);
 
-    boolean existsByUserTruvishCodeAndUserPhoneNumber(String code, String phone);
+    // =========================================================
+    // PHONE - NEWEST FIRST
+    // =========================================================
 
-    List<UserRedemption> findByUserTruvishCodeOrderByUserBrandTimeTempAsc(String code);
+    List<UserRedemption>
+    findByUserPhoneNumberOrderByUserBrandTimeTempDesc(
+            String userPhoneNumber
+    );
 
-    long countByClientId(Long clientId);
 
-    @Query("select coalesce(sum(u.userBrandValue), 0) from UserRedemption u where u.clientId = :clientId")
-    Long sumRedeemedAmountByClientId(Long clientId);
+    // =========================================================
+    // CODE - NEWEST FIRST
+    // =========================================================
 
-    @Query("select count(distinct u.userPhoneNumber) from UserRedemption u")
+    List<UserRedemption>
+    findByUserTruvishCodeOrderByUserBrandTimeTempDesc(
+            String userTruvishCode
+    );
+
+
+    // =========================================================
+    // PHONE OR CODE - NEWEST FIRST
+    // =========================================================
+
+    List<UserRedemption>
+    findByUserPhoneNumberOrUserTruvishCodeOrderByUserBrandTimeTempDesc(
+            String userPhoneNumber,
+            String userTruvishCode
+    );
+
+
+    // =========================================================
+    // CODE - OLDEST FIRST
+    //
+    // Used by TruvishCodeService history.
+    // =========================================================
+
+    List<UserRedemption>
+    findByUserTruvishCodeOrderByUserBrandTimeTempAsc(
+            String userTruvishCode
+    );
+
+
+    // =========================================================
+    // CLIENT ID - NEWEST FIRST
+    // =========================================================
+
+    List<UserRedemption>
+    findByClientIdOrderByUserBrandTimeTempDesc(
+            Long clientId
+    );
+
+
+    // =========================================================
+    // COUNT BY CLIENT
+    //
+    // Used by ClientService.
+    //
+    // Counts redemption rows belonging to client.
+    // =========================================================
+
+    long countByClientId(
+            Long clientId
+    );
+
+
+    // =========================================================
+    // COUNT DISTINCT USERS
+    //
+    // Used by ClientService dashboard.
+    //
+    // userId ko unique user maana gaya hai.
+    // =========================================================
+
+    @Query("""
+            SELECT COUNT(DISTINCT u.userId)
+            FROM UserRedemption u
+            WHERE u.userId IS NOT NULL
+            """)
     Long countDistinctUsers();
 
-    @Query("select count(distinct u.userPhoneNumber) from UserRedemption u where u.clientId = :clientId")
-    Long countDistinctUsersByClientId(Long clientId);
+
+    // =========================================================
+    // COUNT DISTINCT USERS BY CLIENT
+    //
+    // Used by CorporateDashboardService.
+    // =========================================================
+
+    @Query("""
+            SELECT COUNT(DISTINCT u.userId)
+            FROM UserRedemption u
+            WHERE u.clientId = :clientId
+              AND u.userId IS NOT NULL
+            """)
+    Long countDistinctUsersByClientId(
+            @Param("clientId") Long clientId
+    );
+
+
+    // =========================================================
+    // COUNT DISTINCT REDEEMED CODES BY CLIENT
+    //
+    // Used by CorporateDashboardService.
+    //
+    // Same code multiple times redeem/history me aaye,
+    // to ek hi code count hoga.
+    // =========================================================
+
+    @Query("""
+            SELECT COUNT(DISTINCT u.userTruvishCode)
+            FROM UserRedemption u
+            WHERE u.clientId = :clientId
+              AND u.userTruvishCode IS NOT NULL
+            """)
+    Long countDistinctRedeemedCodesByClientId(
+            @Param("clientId") Long clientId
+    );
+
+
+    // =========================================================
+    // REDEEMED AMOUNT BY CLIENT
+    //
+    // Used by ClientService + CorporateDashboardService.
+    // =========================================================
+
+    @Query("""
+            SELECT COALESCE(SUM(u.userBrandValue), 0)
+            FROM UserRedemption u
+            WHERE u.clientId = :clientId
+            """)
+    Long sumRedeemedAmountByClientId(
+            @Param("clientId") Long clientId
+    );
+
+
+    // =========================================================
+    // TOTAL REDEEMED AMOUNT
+    //
+    // Optional helper for dashboard.
+    // =========================================================
+
+    @Query("""
+            SELECT COALESCE(SUM(u.userBrandValue), 0)
+            FROM UserRedemption u
+            """)
+    Long sumTotalRedeemedAmount();
+
+
+    // =========================================================
+    // OPTIONAL:
+    // COUNT REDEMPTIONS BY CLIENT
+    // =========================================================
+
+    @Query("""
+            SELECT COUNT(u)
+            FROM UserRedemption u
+            WHERE u.clientId = :clientId
+            """)
+    Long countRedemptionsByClientId(
+            @Param("clientId") Long clientId
+    );
 }

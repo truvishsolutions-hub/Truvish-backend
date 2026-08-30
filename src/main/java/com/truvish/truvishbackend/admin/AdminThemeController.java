@@ -6,15 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/admin/theme")
-@CrossOrigin(
-        origins = {
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175",
-                "http://localhost:5176"
-        },
-        allowCredentials = "true"
-)
+
 public class AdminThemeController {
 
     private final AdminConfigService service;

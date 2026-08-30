@@ -19,6 +19,7 @@ public class CodeRedemptionHistoryController {
 
     private final CodeRedemptionHistoryService service;
 
+
     public CodeRedemptionHistoryController(CodeRedemptionHistoryService service) {
         this.service = service;
     }

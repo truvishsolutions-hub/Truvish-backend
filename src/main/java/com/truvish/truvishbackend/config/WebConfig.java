@@ -1,10 +1,18 @@
 package com.truvish.truvishbackend.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
+
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
@@ -19,18 +27,18 @@ public class WebConfig implements WebMvcConfigurer {
     // CORS CONFIGURATION
     // =========================================================
 
-    @Override
-    public void addCorsMappings(
-            CorsRegistry registry
-    ) {
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
 
-        registry.addMapping("/**")
+        CorsConfiguration configuration =
+                new CorsConfiguration();
 
-                // =================================================
-                // FRONTEND DOMAINS
-                // =================================================
+        // =====================================================
+        // ALLOWED ORIGINS
+        // =====================================================
 
-                .allowedOriginPatterns(
+        configuration.setAllowedOriginPatterns(
+                List.of(
 
                         // MAIN DOMAIN
                         "https://truvish.com",
@@ -45,7 +53,7 @@ public class WebConfig implements WebMvcConfigurer {
                         // CLOUDFLARE
                         "https://*.trycloudflare.com",
 
-                        // OTHER
+                        // OTHER DOMAINS
                         "https://trivish-redeem.com",
                         "https://client-request-production.up.railway.app",
 
@@ -54,14 +62,17 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:5173",
                         "http://localhost:5174",
                         "http://localhost:5175",
-                        "http://localhost:5176"
+                        "http://localhost:5176",
+                        "http://localhost:5177"
                 )
+        );
 
-                // =================================================
-                // METHODS
-                // =================================================
+        // =====================================================
+        // HTTP METHODS
+        // =====================================================
 
-                .allowedMethods(
+        configuration.setAllowedMethods(
+                List.of(
                         "GET",
                         "POST",
                         "PUT",
@@ -69,33 +80,52 @@ public class WebConfig implements WebMvcConfigurer {
                         "PATCH",
                         "OPTIONS"
                 )
+        );
 
-                // =================================================
-                // HEADERS
-                // =================================================
+        // =====================================================
+        // REQUEST HEADERS
+        // =====================================================
 
-                .allowedHeaders("*")
+        configuration.setAllowedHeaders(
+                List.of("*")
+        );
 
-                // =================================================
-                // EXPOSE HEADERS
-                // =================================================
+        // =====================================================
+        // EXPOSED HEADERS
+        // =====================================================
 
-                .exposedHeaders(
+        configuration.setExposedHeaders(
+                List.of(
                         HttpHeaders.AUTHORIZATION,
                         HttpHeaders.CONTENT_TYPE
                 )
+        );
 
-                // =================================================
-                // COOKIES / TOKENS
-                // =================================================
+        // =====================================================
+        // CREDENTIALS
+        // =====================================================
 
-                .allowCredentials(true)
+        configuration.setAllowCredentials(true);
 
-                // =================================================
-                // PREFLIGHT CACHE
-                // =================================================
+        // =====================================================
+        // PREFLIGHT CACHE
+        // =====================================================
 
-                .maxAge(3600);
+        configuration.setMaxAge(3600L);
+
+        // =====================================================
+        // REGISTER
+        // =====================================================
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
+
+        return source;
     }
 
     // =========================================================

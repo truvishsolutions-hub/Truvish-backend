@@ -1,5 +1,7 @@
 package com.truvish.truvishbackend.ClientEmailService;
 
+import java.util.List;
+
 public class VoucherRequest {
 
     private String email;

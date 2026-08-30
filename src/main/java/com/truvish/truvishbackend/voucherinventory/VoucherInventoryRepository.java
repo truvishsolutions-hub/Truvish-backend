@@ -18,6 +18,7 @@ public interface VoucherInventoryRepository extends JpaRepository<VoucherInvento
             BigDecimal denomination
     );
 
+
     Optional<VoucherInventory> findFirstByBrandNameIgnoreCaseAndDenominationAndStatusIgnoreCaseAndValidityTillGreaterThanEqualOrderByValidityTillAscCreatedAtAsc(
             String brandName,
             BigDecimal denomination,

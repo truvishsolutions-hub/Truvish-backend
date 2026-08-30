@@ -61,6 +61,7 @@ public class VoucherInventoryController {
         return ResponseEntity.noContent().build();
     }
 
+
     @PostMapping("/redeem")
     public ResponseEntity<VoucherRedeemResponse> redeem(@Valid @RequestBody VoucherRedeemRequest request) {
         return ResponseEntity.ok(voucherInventoryService.redeem(request));

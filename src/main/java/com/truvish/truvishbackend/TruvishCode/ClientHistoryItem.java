@@ -5,33 +5,24 @@ import java.time.LocalDateTime;
 public class ClientHistoryItem {
 
     private LocalDateTime eventTime;
-
     private String code;
-
     private Long amount;
-
     private Long remainingBalance;
-
     private String message;
-
     private String eventType;
-
     private Integer validityMonths;
-
     private LocalDateTime expiryDate;
-
-    // NEW
     private String redeemedBrand;
-
-    // NEW
     private String redeemedPhone;
-
-    // NEW
     private LocalDateTime issuedDate;
-
-    // NEW
     private LocalDateTime redeemedDate;
+    private String codeType; // DIGITAL or PHYSICAL
 
+    // NEW FIELDS
+    private String serialNumber;
+    private String referenceNumber;
+
+    // Constructors
     public ClientHistoryItem() {
     }
 
@@ -62,6 +53,8 @@ public class ClientHistoryItem {
         this.issuedDate = issuedDate;
         this.redeemedDate = redeemedDate;
     }
+
+    // Getters and Setters for all fields
 
     public LocalDateTime getEventTime() {
         return eventTime;
@@ -157,5 +150,29 @@ public class ClientHistoryItem {
 
     public void setRedeemedDate(LocalDateTime redeemedDate) {
         this.redeemedDate = redeemedDate;
+    }
+
+    public String getCodeType() {
+        return codeType;
+    }
+
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+
+    public String getReferenceNumber() {
+        return referenceNumber;
+    }
+
+    public void setReferenceNumber(String referenceNumber) {
+        this.referenceNumber = referenceNumber;
     }
 }
