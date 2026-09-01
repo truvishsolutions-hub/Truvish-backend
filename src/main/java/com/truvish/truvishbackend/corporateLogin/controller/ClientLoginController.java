@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/corporate/login")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class ClientLoginController {
 
     private final ClientLoginService clientLoginService;
 
     @PostMapping
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request
+    ) {
 
-        LoginResponse response = clientLoginService.login(request);
+        LoginResponse response =
+                clientLoginService.login(request);
 
         return ResponseEntity.ok(response);
     }
-
 }
