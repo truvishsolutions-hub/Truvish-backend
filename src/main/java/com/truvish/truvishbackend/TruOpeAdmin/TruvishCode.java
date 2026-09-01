@@ -1,4 +1,4 @@
-package com.truvish.truvishbackend.TruvishCode;
+package com.truvish.truvishbackend.TruOpeAdmin;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -7,7 +7,6 @@ import java.util.List;
 
 import jakarta.persistence.ElementCollection;
 
-import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
 @Entity
 @Table(name = "truvish_code_generator")
 public class TruvishCode {

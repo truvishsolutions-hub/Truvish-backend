@@ -4,9 +4,9 @@ import com.truvish.truvishbackend.TruBlankCode.TruBlankCode;
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeRepository;
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeStatus;
 
-import com.truvish.truvishbackend.TruvishCode.TruvishCode;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
-import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCode;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruOpeAdmin.VoucherStatus;
 
 import com.truvish.truvishbackend.voucherinventory.VoucherInventory;
 import com.truvish.truvishbackend.voucherinventory.VoucherInventoryRepository;

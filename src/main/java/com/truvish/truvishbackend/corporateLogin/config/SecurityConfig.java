@@ -55,33 +55,54 @@ public class SecurityConfig {
                                             new org.springframework.web.cors.CorsConfiguration();
 
 
-                                    // ---------------------------------
+                                    // =================================================
                                     // ALLOWED ORIGINS
-                                    // ---------------------------------
+                                    // =================================================
 
                                     configuration.setAllowedOriginPatterns(
                                             java.util.List.of(
 
+                                                    // ---------------------------------
                                                     // Production
+                                                    // ---------------------------------
+
                                                     "https://truvish.com",
                                                     "https://www.truvish.com",
 
+                                                    // ---------------------------------
                                                     // Railway
+                                                    // ---------------------------------
+
                                                     "https://*.up.railway.app",
 
+                                                    // ---------------------------------
                                                     // Netlify
+                                                    // ---------------------------------
+
                                                     "https://*.netlify.app",
 
+                                                    // ---------------------------------
                                                     // Cloudflare Tunnel
+                                                    // ---------------------------------
+
                                                     "https://*.trycloudflare.com",
 
+                                                    // ---------------------------------
                                                     // Redeem frontend
+                                                    // ---------------------------------
+
                                                     "https://trivish-redeem.com",
 
+                                                    // ---------------------------------
                                                     // Client request frontend/backend
+                                                    // ---------------------------------
+
                                                     "https://client-request-production.up.railway.app",
 
+                                                    // ---------------------------------
                                                     // Local development
+                                                    // ---------------------------------
+
                                                     "http://localhost:3000",
                                                     "http://localhost:5173",
                                                     "http://localhost:5174",
@@ -92,9 +113,9 @@ public class SecurityConfig {
                                     );
 
 
-                                    // ---------------------------------
-                                    // METHODS
-                                    // ---------------------------------
+                                    // =================================================
+                                    // ALLOWED METHODS
+                                    // =================================================
 
                                     configuration.setAllowedMethods(
                                             java.util.List.of(
@@ -108,18 +129,18 @@ public class SecurityConfig {
                                     );
 
 
-                                    // ---------------------------------
-                                    // HEADERS
-                                    // ---------------------------------
+                                    // =================================================
+                                    // ALLOWED HEADERS
+                                    // =================================================
 
                                     configuration.setAllowedHeaders(
                                             java.util.List.of("*")
                                     );
 
 
-                                    // ---------------------------------
+                                    // =================================================
                                     // EXPOSED HEADERS
-                                    // ---------------------------------
+                                    // =================================================
 
                                     configuration.setExposedHeaders(
                                             java.util.List.of(
@@ -129,16 +150,16 @@ public class SecurityConfig {
                                     );
 
 
-                                    // ---------------------------------
+                                    // =================================================
                                     // CREDENTIALS
-                                    // ---------------------------------
+                                    // =================================================
 
                                     configuration.setAllowCredentials(true);
 
 
-                                    // ---------------------------------
+                                    // =================================================
                                     // CACHE
-                                    // ---------------------------------
+                                    // =================================================
 
                                     configuration.setMaxAge(3600L);
 
@@ -150,7 +171,7 @@ public class SecurityConfig {
 
 
                 // =================================================
-                // SESSION
+                // SESSION MANAGEMENT
                 // =================================================
 
                 .sessionManagement(session ->
@@ -166,9 +187,8 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-
                         // -----------------------------------------
-                        // OPTIONS
+                        // OPTIONS / PREFLIGHT
                         // -----------------------------------------
 
                         .requestMatchers(
@@ -215,10 +235,6 @@ public class SecurityConfig {
 
                         // -----------------------------------------
                         // CLIENT REDEMPTION HISTORY
-                        //
-                        // IMPORTANT:
-                        // Frontend is calling:
-                        // /api/redemption-history/client/20
                         // -----------------------------------------
 
                         .requestMatchers(

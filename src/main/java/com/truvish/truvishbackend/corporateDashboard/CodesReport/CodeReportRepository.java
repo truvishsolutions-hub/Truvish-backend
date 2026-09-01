@@ -1,6 +1,6 @@
 package com.truvish.truvishbackend.corporateDashboard.CodesReport;
 
-import com.truvish.truvishbackend.TruvishCode.TruvishCode;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -38,6 +38,6 @@ public interface CodeReportRepository
     List<TruvishCode>
     findByClientIdAndTruvishCodeStatusOrderByTruvishCodeTimestampDesc(
             Long clientId,
-            com.truvish.truvishbackend.TruvishCode.VoucherStatus status
+            com.truvish.truvishbackend.TruOpeAdmin.VoucherStatus status
     );
 }

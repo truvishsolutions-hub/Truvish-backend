@@ -1,8 +1,8 @@
 package com.truvish.truvishbackend.corporateDashboard.CodesReport;
 
-import com.truvish.truvishbackend.TruvishCode.TruvishCode;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
-import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCode;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruOpeAdmin.VoucherStatus;
 import com.truvish.truvishbackend.redemption.UserRedemption;
 import com.truvish.truvishbackend.redemption.UserRedemptionRepository;
 

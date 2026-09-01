@@ -1,7 +1,7 @@
 package com.truvish.truvishbackend.redemption;
 
-import com.truvish.truvishbackend.TruvishCode.ClientHistoryItem;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeService;
+import com.truvish.truvishbackend.TruOpeAdmin.ClientHistoryItem;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeService;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 

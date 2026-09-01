@@ -1,4 +1,4 @@
-package com.truvish.truvishbackend.TruvishCode;
+package com.truvish.truvishbackend.TruOpeAdmin;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

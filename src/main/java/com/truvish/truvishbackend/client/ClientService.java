@@ -1,7 +1,7 @@
 package com.truvish.truvishbackend.client;
 
-import com.truvish.truvishbackend.TruvishCode.TruvishCode;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCode;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeRepository;
 import com.truvish.truvishbackend.common.FileStorageService;
 import com.truvish.truvishbackend.redemption.UserRedemption;
 import com.truvish.truvishbackend.redemption.UserRedemptionRepository;

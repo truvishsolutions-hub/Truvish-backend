@@ -2,8 +2,8 @@ package com.truvish.truvishbackend.corporateDashboard;
 
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeRepository;
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeStatus;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
-import com.truvish.truvishbackend.TruvishCode.VoucherStatus;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruOpeAdmin.VoucherStatus;
 import com.truvish.truvishbackend.client.Client;
 
 import lombok.RequiredArgsConstructor;

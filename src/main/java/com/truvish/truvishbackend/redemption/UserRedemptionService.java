@@ -2,8 +2,8 @@ package com.truvish.truvishbackend.redemption;
 
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCode;
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeRepository;
-import com.truvish.truvishbackend.TruvishCode.TruvishCode;
-import com.truvish.truvishbackend.TruvishCode.TruvishCodeRepository;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCode;
+import com.truvish.truvishbackend.TruOpeAdmin.TruvishCodeRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

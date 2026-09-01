@@ -1,4 +1,4 @@
-package com.truvish.truvishbackend.TruvishCode;
+package com.truvish.truvishbackend.TruOpeAdmin;
 
 import jakarta.validation.constraints.*;
 

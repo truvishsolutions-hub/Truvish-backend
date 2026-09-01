@@ -1,4 +1,4 @@
-package com.truvish.truvishbackend.TruvishCode;
+package com.truvish.truvishbackend.TruOpeAdmin;
 
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCode;
 import com.truvish.truvishbackend.TruBlankCode.TruBlankCodeRepository;
@@ -350,7 +350,7 @@ public class TruvishCodeService {
     }
 
     // =========================================================
-    // DIGITAL CODE ASSIGNMENT (unchanged)
+    // DIGITAL CODE ASSIGNMENT (fixed double deduction)
     // =========================================================
 
     @Transactional
@@ -371,6 +371,10 @@ public class TruvishCodeService {
             throw new RuntimeException("Insufficient Balance. Required: " + totalAmount + ", Available: " + balance);
         }
 
+        // Deduct wallet manually
+        client.setBalance(balance.subtract(totalAmount));
+        clientRepo.save(client);
+
         List<TruvishCode> savedCodes = new ArrayList<>();
         for (int i = 0; i < quantity; i++) {
             TruvishCode code = new TruvishCode();
@@ -390,35 +394,100 @@ public class TruvishCodeService {
             savedCodes.add(repo.save(code));
         }
 
-        // Wallet DEBIT (unchanged)
-        CreateWalletTxnRequest walletReq = new CreateWalletTxnRequest();
-        walletReq.setAmount(totalAmount);
-        walletReq.setType("DEBIT");
-        walletReq.setDescription("Debited");
-        walletReq.setReferenceType("VOUCHER");
-        walletReq.setReferenceId(UUID.randomUUID().toString());
-        walletService.create(dto.getClientId(), walletReq);
+        // ✅ Create wallet DEBIT history WITHOUT updating balance (using recordDebit)
+        walletService.recordDebit(
+                dto.getClientId(),
+                totalAmount,
+                "Debited",
+                "VOUCHER",
+                UUID.randomUUID().toString()
+        );
 
         return savedCodes;
     }
 
     // =========================================================
-    // CONFIGURE PHYSICAL TRUCARD (unchanged)
+    // 🆕 GENERATE ORDER VOUCHERS (FIXED – NO DOUBLE DEDUCTION)
+    // =========================================================
+
+    @Transactional
+    public List<TruvishCode> generateOrderVouchers(OrderVoucherRequest request) {
+        // 1. Validate client
+        Client client = clientRepo.findById(request.getClientId())
+                .orElseThrow(() -> new RuntimeException("Client not found: " + request.getClientId()));
+
+        // 2. Calculate total amount
+        BigDecimal totalAmount = request.getItems().stream()
+                .map(item -> BigDecimal.valueOf(item.getDenomination())
+                        .multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (totalAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("Total order value must be greater than zero.");
+        }
+
+        // 3. Check balance
+        BigDecimal balance = client.getBalance() == null ? BigDecimal.ZERO : client.getBalance();
+        if (balance.compareTo(totalAmount) < 0) {
+            throw new RuntimeException("Insufficient balance. Required: " + totalAmount + ", Available: " + balance);
+        }
+
+        // 4. ✅ Deduct wallet ONLY ONCE (manual)
+        client.setBalance(balance.subtract(totalAmount));
+        clientRepo.save(client);
+
+        // 5. Generate codes for each item
+        List<TruvishCode> generatedCodes = new ArrayList<>();
+        for (OrderVoucherRequest.DenomItem item : request.getItems()) {
+            Long denomination = item.getDenomination();
+            int quantity = item.getQuantity();
+
+            for (int i = 0; i < quantity; i++) {
+                TruvishCode code = new TruvishCode();
+                code.setTruvishIdCodeNumber(generateUniqueCode());
+                code.setClientId(request.getClientId());
+                code.setClientName(client.getCompanyName() != null ? client.getCompanyName() : client.getClientName());
+                code.setClientImg(client.getLogoImg());
+                code.setTruvishCodeValue(denomination);
+                code.setOriginalCodeValue(denomination);
+                code.setClientTheme(request.getThemeName());
+                code.setClientThemeImg(request.getThemeImg());
+                code.setValidity(request.getValidityMonths());
+                code.setTruvishCodeTimestamp(LocalDateTime.now());
+                code.setTruvishCodeStatus(VoucherStatus.ACTIVE);
+                generatedCodes.add(repo.save(code));
+            }
+        }
+
+        // 6. ✅ Create wallet DEBIT history WITHOUT updating balance (using recordDebit)
+        walletService.recordDebit(
+                request.getClientId(),
+                totalAmount,
+                "Debited",                          // ✅ Exactly "Debited"
+                "VOUCHER",
+                UUID.randomUUID().toString()
+        );
+
+        return generatedCodes;
+    }
+
+    // =========================================================
+    // CONFIGURE PHYSICAL TRUCARD (placeholder)
     // =========================================================
 
     @Transactional
     public TruBlankCode configureBlankCode(Long blankCodeId, Long clientId, Long denomination, Integer validityMonths) {
         // ... existing code unchanged ...
-        return null; // placeholder
+        return null;
     }
 
     // =========================================================
-    // ACTIVATE PHYSICAL TRUCARD (unchanged)
+    // ACTIVATE PHYSICAL TRUCARD (placeholder)
     // =========================================================
 
     @Transactional
     public TruBlankCode activateBlankCode(Long blankCodeId, Long clientId, Long denomination, Integer validityMonths) {
         // ... existing code unchanged ...
-        return null; // placeholder
+        return null;
     }
 }
