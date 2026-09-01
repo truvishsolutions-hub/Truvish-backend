@@ -37,14 +37,41 @@ public class WebConfig implements WebMvcConfigurer {
                 List.of(
 
                         // =================================================
-                        // TRUVISH FRONTENDS
+                        // MAIN TRUVISH DOMAINS
                         // =================================================
 
                         "https://truvish.com",
                         "https://www.truvish.com",
+
+                        // =================================================
+                        // CLIENT FRONTEND
+                        // =================================================
+
                         "https://client.truvish.com",
+
+                        // =================================================
+                        // ADMIN FRONTEND
+                        // =================================================
+
                         "https://admin.truvish.com",
+
+                        // =================================================
+                        // REDEEM FRONTEND
+                        // =================================================
+
                         "https://redeem.truvish.com",
+
+                        // =================================================
+                        // TRUBLANKCODE FRONTEND
+                        // =================================================
+
+                        "https://trublankcode.truvish.com",
+
+                        // =================================================
+                        // OTHER TRUVISH SUBDOMAINS
+                        // =================================================
+
+                        "https://*.truvish.com",
 
                         // =================================================
                         // RAILWAY FRONTENDS / SERVICES
@@ -59,7 +86,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "https://*.netlify.app",
 
                         // =================================================
-                        // CLOUDFLARE
+                        // CLOUDFLARE TUNNEL
                         // =================================================
 
                         "https://*.trycloudflare.com",
@@ -80,7 +107,14 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:5174",
                         "http://localhost:5175",
                         "http://localhost:5176",
-                        "http://localhost:5177"
+                        "http://localhost:5177",
+
+                        "http://127.0.0.1:3000",
+                        "http://127.0.0.1:5173",
+                        "http://127.0.0.1:5174",
+                        "http://127.0.0.1:5175",
+                        "http://127.0.0.1:5176",
+                        "http://127.0.0.1:5177"
                 )
         );
 
@@ -155,7 +189,10 @@ public class WebConfig implements WebMvcConfigurer {
             ResourceHandlerRegistry registry
     ) {
 
-        registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:" + UPLOAD_DIR);
+        registry.addResourceHandler(
+                "/uploads/**"
+        ).addResourceLocations(
+                "file:" + UPLOAD_DIR
+        );
     }
 }
