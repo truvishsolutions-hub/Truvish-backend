@@ -22,6 +22,7 @@ public class SecurityConfig {
 
     private final AuthenticationProvider authenticationProvider;
 
+
     // =========================================================
     // SECURITY FILTER CHAIN
     // =========================================================
@@ -37,18 +38,16 @@ public class SecurityConfig {
                 // CSRF
                 // =================================================
 
-                .csrf(csrf ->
-                        csrf.disable()
-                )
+                .csrf(csrf -> csrf.disable())
+
 
                 // =================================================
                 // CORS
                 // =================================================
-                // CORS configuration is handled by WebConfig.java
-                // =================================================
 
                 .cors(cors -> {
                 })
+
 
                 // =================================================
                 // SESSION
@@ -59,6 +58,7 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS
                         )
                 )
+
 
                 // =================================================
                 // AUTHORIZATION
@@ -75,21 +75,21 @@ public class SecurityConfig {
                                 "/**"
                         ).permitAll()
 
+
                         // =================================================
-                        // BOOK DEMO
+                        // PUBLIC APIs
                         // =================================================
 
                         .requestMatchers(
-                                "/api/book-demo"
+                                HttpMethod.GET,
+                                "/api/clients/exists"
                         ).permitAll()
 
-                        // =================================================
-                        // OLD DEMO
-                        // =================================================
-
                         .requestMatchers(
+                                "/api/book-demo",
                                 "/api/demo-requests"
                         ).permitAll()
+
 
                         // =================================================
                         // CORPORATE LOGIN
@@ -99,6 +99,7 @@ public class SecurityConfig {
                                 "/api/corporate/login/**"
                         ).permitAll()
 
+
                         // =================================================
                         // CORPORATE DASHBOARD
                         // =================================================
@@ -106,6 +107,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/corporate/dashboard/**"
                         ).permitAll()
+
 
                         // =================================================
                         // CODE REPORT
@@ -115,6 +117,7 @@ public class SecurityConfig {
                                 "/api/corporate/code-report/**"
                         ).permitAll()
 
+
                         // =================================================
                         // CLIENTS
                         // =================================================
@@ -122,6 +125,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/clients/**"
                         ).permitAll()
+
 
                         // =================================================
                         // REDEMPTION HISTORY
@@ -131,6 +135,7 @@ public class SecurityConfig {
                                 "/api/redemption-history/**"
                         ).permitAll()
 
+
                         // =================================================
                         // TRUVISH
                         // =================================================
@@ -138,6 +143,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/truvish/**"
                         ).permitAll()
+
 
                         // =================================================
                         // THEMES
@@ -147,6 +153,7 @@ public class SecurityConfig {
                                 "/api/themes/**"
                         ).permitAll()
 
+
                         // =================================================
                         // ADMIN
                         // =================================================
@@ -154,6 +161,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/admin/**"
                         ).permitAll()
+
 
                         // =================================================
                         // CLIENT BRAND
@@ -163,6 +171,7 @@ public class SecurityConfig {
                                 "/api/client-choose-brand/**"
                         ).permitAll()
 
+
                         // =================================================
                         // INVENTORY
                         // =================================================
@@ -170,6 +179,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/inventory/**"
                         ).permitAll()
+
 
                         // =================================================
                         // VOUCHER INVENTORY
@@ -179,6 +189,7 @@ public class SecurityConfig {
                                 "/api/voucher-inventory/**"
                         ).permitAll()
 
+
                         // =================================================
                         // REDEEM
                         // =================================================
@@ -186,6 +197,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/redeem/**"
                         ).permitAll()
+
 
                         // =================================================
                         // WALLET
@@ -195,6 +207,7 @@ public class SecurityConfig {
                                 "/api/wallet/**"
                         ).permitAll()
 
+
                         // =================================================
                         // TRUCARD
                         // =================================================
@@ -202,6 +215,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/trucard/**"
                         ).permitAll()
+
 
                         // =================================================
                         // TRUCARD CODES
@@ -211,6 +225,7 @@ public class SecurityConfig {
                                 "/api/trucard-codes/**"
                         ).permitAll()
 
+
                         // =================================================
                         // TRU BLANK CODE
                         // =================================================
@@ -218,6 +233,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/admin/tru-blank-code/**"
                         ).permitAll()
+
 
                         // =================================================
                         // UPLOADS
@@ -227,12 +243,14 @@ public class SecurityConfig {
                                 "/uploads/**"
                         ).permitAll()
 
+
                         // =================================================
                         // EVERYTHING ELSE
                         // =================================================
 
                         .anyRequest().authenticated()
                 )
+
 
                 // =================================================
                 // AUTHENTICATION PROVIDER
@@ -241,6 +259,7 @@ public class SecurityConfig {
                 .authenticationProvider(
                         authenticationProvider
                 )
+
 
                 // =================================================
                 // JWT FILTER
@@ -251,23 +270,24 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class
                 )
 
+
                 // =================================================
                 // BASIC AUTH DISABLED
                 // =================================================
 
                 .httpBasic(
-                        httpBasic ->
-                                httpBasic.disable()
+                        httpBasic -> httpBasic.disable()
                 )
+
 
                 // =================================================
                 // FORM LOGIN DISABLED
                 // =================================================
 
                 .formLogin(
-                        form ->
-                                form.disable()
+                        form -> form.disable()
                 );
+
 
         return http.build();
     }
