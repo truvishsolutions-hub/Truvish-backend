@@ -37,16 +37,14 @@ public class SecurityConfig {
                 // CSRF
                 // =================================================
 
-                .csrf(csrf ->
-                        csrf.disable()
-                )
+                .csrf(csrf -> csrf.disable())
 
                 // =================================================
                 // CORS
                 // =================================================
-                // CORS is configured ONLY in WebConfig.java
-                // Do NOT create another CorsConfigurationSource bean
-                // here.
+                // CORS configuration is ONLY in WebConfig.java.
+                // Do NOT create another CorsConfigurationSource
+                // bean here.
                 // =================================================
 
                 .cors(cors -> {
@@ -260,8 +258,7 @@ public class SecurityConfig {
                 // =================================================
 
                 .httpBasic(
-                        httpBasic ->
-                                httpBasic.disable()
+                        httpBasic -> httpBasic.disable()
                 )
 
                 // =================================================
@@ -269,8 +266,7 @@ public class SecurityConfig {
                 // =================================================
 
                 .formLogin(
-                        form ->
-                                form.disable()
+                        form -> form.disable()
                 );
 
         return http.build();
