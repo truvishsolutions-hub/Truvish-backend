@@ -1,13 +1,13 @@
 package com.truvish.truvishbackend.corporateLogin;
 
-import com.truvish.truvishbackend.corporateLogin.ClientLogin;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface ClientLoginRepository extends JpaRepository<ClientLogin, Long> {
+public interface ClientLoginRepository
+        extends JpaRepository<ClientLogin, Long> {
 
     /**
      * Find login by email
@@ -28,5 +28,4 @@ public interface ClientLoginRepository extends JpaRepository<ClientLogin, Long> 
      * Check client already has login
      */
     boolean existsByClientId(Long clientId);
-
 }
