@@ -36,59 +36,31 @@ public class WebConfig implements WebMvcConfigurer {
         configuration.setAllowedOriginPatterns(
                 List.of(
 
-                        // =================================================
                         // TRUVISH FRONTENDS
-                        // =================================================
-
                         "https://truvish.com",
                         "https://www.truvish.com",
-
                         "https://client.truvish.com",
-
                         "https://admin.truvish.com",
-
                         "https://redeem.truvish.com",
 
-                        // =================================================
-                        // BACKEND DOMAINS
-                        // =================================================
-
+                        // BACKEND
                         "https://api.truvish.com",
-
                         "https://truvish-backend-production.up.railway.app",
 
-                        // =================================================
-                        // OTHER RAILWAY SERVICES
-                        // =================================================
-
-                        "https://client-request-production.up.railway.app",
-
+                        // RAILWAY
                         "https://*.up.railway.app",
 
-                        // =================================================
                         // NETLIFY
-                        // =================================================
-
                         "https://*.netlify.app",
 
-                        // =================================================
                         // CLOUDFLARE
-                        // =================================================
-
                         "https://*.trycloudflare.com",
 
-                        // =================================================
-                        // REDEEM / OTHER DOMAINS
-                        // =================================================
-
+                        // OTHER DOMAINS
                         "https://trivish-redeem.com",
-
                         "https://www.trivish-redeem.com",
 
-                        // =================================================
                         // LOCAL DEVELOPMENT
-                        // =================================================
-
                         "http://localhost:3000",
                         "http://localhost:5173",
                         "http://localhost:5174",
@@ -99,7 +71,7 @@ public class WebConfig implements WebMvcConfigurer {
         );
 
         // =====================================================
-        // HTTP METHODS
+        // METHODS
         // =====================================================
 
         configuration.setAllowedMethods(
@@ -115,7 +87,7 @@ public class WebConfig implements WebMvcConfigurer {
         );
 
         // =====================================================
-        // REQUEST HEADERS
+        // HEADERS
         // =====================================================
 
         configuration.setAllowedHeaders(
@@ -169,11 +141,7 @@ public class WebConfig implements WebMvcConfigurer {
             ResourceHandlerRegistry registry
     ) {
 
-        registry.addResourceHandler(
-                        "/uploads/**"
-                )
-                .addResourceLocations(
-                        "file:" + UPLOAD_DIR
-                );
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:" + UPLOAD_DIR);
     }
 }
