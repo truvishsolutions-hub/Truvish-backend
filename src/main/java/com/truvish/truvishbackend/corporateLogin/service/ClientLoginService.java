@@ -21,34 +21,42 @@ public class ClientLoginService {
 
     public LoginResponse login(LoginRequest request) {
 
-        ClientLogin login = clientLoginRepository
-                .findByEmail(request.getEmail())
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.UNAUTHORIZED,
-                                "Invalid Email or Password"
-                        ));
+        ClientLogin login =
+                clientLoginRepository
+                        .findByEmail(request.getEmail())
+                        .orElseThrow(() ->
+                                new ResponseStatusException(
+                                        HttpStatus.UNAUTHORIZED,
+                                        "Invalid Email or Password"
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(login.getActive())) {
+
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
                     "Account is inactive"
             );
         }
 
-        boolean passwordMatched = passwordEncoder.matches(
-                request.getPassword(),
-                login.getPassword()
-        );
+        boolean passwordMatched =
+                passwordEncoder.matches(
+                        request.getPassword(),
+                        login.getPassword()
+                );
 
         if (!passwordMatched) {
+
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Invalid Email or Password"
             );
         }
 
-        String token = jwtService.generateToken(login.getEmail());
+        String token =
+                jwtService.generateToken(
+                        login.getEmail()
+                );
 
         return LoginResponse.builder()
                 .success(true)
