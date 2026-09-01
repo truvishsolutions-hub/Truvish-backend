@@ -1,6 +1,5 @@
 package com.truvish.truvishbackend.corporateLogin.security;
 
-
 import com.truvish.truvishbackend.corporateLogin.ClientLogin;
 import com.truvish.truvishbackend.corporateLogin.ClientLoginRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,8 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService
+        implements UserDetailsService {
 
     private final ClientLoginRepository clientLoginRepository;
 
@@ -25,18 +25,26 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email)
             throws UsernameNotFoundException {
 
-        ClientLogin client = clientLoginRepository
-                .findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found with email : " + email));
+        ClientLogin client =
+                clientLoginRepository
+                        .findByEmail(email)
+                        .orElseThrow(() ->
+                                new UsernameNotFoundException(
+                                        "User not found with email : " + email
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(client.getActive())) {
-            throw new DisabledException("Account is inactive");
+
+            throw new DisabledException(
+                    "Account is inactive"
+            );
         }
 
-        List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority("ROLE_CLIENT")
-        );
+        List<GrantedAuthority> authorities =
+                List.of(
+                        new SimpleGrantedAuthority("ROLE_CLIENT")
+                );
 
         return User.builder()
                 .username(client.getEmail())
