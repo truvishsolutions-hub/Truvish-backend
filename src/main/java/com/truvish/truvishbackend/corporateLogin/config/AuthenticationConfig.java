@@ -17,23 +17,23 @@ public class AuthenticationConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-    /**
-     * Authentication Provider
-     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
 
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider =
+                new DaoAuthenticationProvider();
 
-        provider.setUserDetailsService(customUserDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(
+                customUserDetailsService
+        );
+
+        provider.setPasswordEncoder(
+                passwordEncoder
+        );
 
         return provider;
     }
 
-    /**
-     * Authentication Manager
-     */
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration
