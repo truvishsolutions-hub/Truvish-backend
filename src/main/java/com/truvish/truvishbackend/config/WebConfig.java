@@ -2,13 +2,10 @@ package com.truvish.truvishbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.http.HttpHeaders;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -30,8 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
-        CorsConfiguration configuration =
-                new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
         // =====================================================
         // ALLOWED ORIGINS
@@ -40,24 +36,59 @@ public class WebConfig implements WebMvcConfigurer {
         configuration.setAllowedOriginPatterns(
                 List.of(
 
-                        // MAIN DOMAIN
+                        // =================================================
+                        // TRUVISH FRONTENDS
+                        // =================================================
+
                         "https://truvish.com",
                         "https://www.truvish.com",
 
-                        // RAILWAY
-                        "https://*.up.railway.app",
+                        "https://client.truvish.com",
 
-                        // NETLIFY
-                        "https://*.netlify.app",
+                        "https://admin.truvish.com",
 
-                        // CLOUDFLARE
-                        "https://*.trycloudflare.com",
+                        "https://redeem.truvish.com",
 
-                        // OTHER DOMAINS
-                        "https://trivish-redeem.com",
+                        // =================================================
+                        // BACKEND DOMAINS
+                        // =================================================
+
+                        "https://api.truvish.com",
+
+                        "https://truvish-backend-production.up.railway.app",
+
+                        // =================================================
+                        // OTHER RAILWAY SERVICES
+                        // =================================================
+
                         "https://client-request-production.up.railway.app",
 
-                        // LOCALHOST
+                        "https://*.up.railway.app",
+
+                        // =================================================
+                        // NETLIFY
+                        // =================================================
+
+                        "https://*.netlify.app",
+
+                        // =================================================
+                        // CLOUDFLARE
+                        // =================================================
+
+                        "https://*.trycloudflare.com",
+
+                        // =================================================
+                        // REDEEM / OTHER DOMAINS
+                        // =================================================
+
+                        "https://trivish-redeem.com",
+
+                        "https://www.trivish-redeem.com",
+
+                        // =================================================
+                        // LOCAL DEVELOPMENT
+                        // =================================================
+
                         "http://localhost:3000",
                         "http://localhost:5173",
                         "http://localhost:5174",
@@ -78,7 +109,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "PUT",
                         "DELETE",
                         "PATCH",
-                        "OPTIONS"
+                        "OPTIONS",
+                        "HEAD"
                 )
         );
 
@@ -114,7 +146,7 @@ public class WebConfig implements WebMvcConfigurer {
         configuration.setMaxAge(3600L);
 
         // =====================================================
-        // REGISTER
+        // REGISTER CORS
         // =====================================================
 
         UrlBasedCorsConfigurationSource source =
