@@ -29,7 +29,11 @@ public class ClientLogin {
     /**
      * Client Table ID
      */
-    @Column(name = "client_id", nullable = false, unique = true)
+    @Column(
+            name = "client_id",
+            nullable = false,
+            unique = true
+    )
     private Long clientId;
 
     /**
@@ -37,7 +41,11 @@ public class ClientLogin {
      */
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(
+            nullable = false,
+            unique = true,
+            length = 255
+    )
     private String email;
 
     /**
@@ -57,7 +65,11 @@ public class ClientLogin {
     /**
      * Created Time
      */
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(
+            name = "created_at",
+            nullable = false,
+            updatable = false
+    )
     private LocalDateTime createdAt;
 
     /**
@@ -68,13 +80,14 @@ public class ClientLogin {
 
     @PrePersist
     public void onCreate() {
+
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     public void onUpdate() {
+
         updatedAt = LocalDateTime.now();
     }
-
 }
