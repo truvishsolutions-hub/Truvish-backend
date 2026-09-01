@@ -36,31 +36,45 @@ public class WebConfig implements WebMvcConfigurer {
         configuration.setAllowedOriginPatterns(
                 List.of(
 
+                        // =================================================
                         // TRUVISH FRONTENDS
+                        // =================================================
+
                         "https://truvish.com",
                         "https://www.truvish.com",
                         "https://client.truvish.com",
                         "https://admin.truvish.com",
                         "https://redeem.truvish.com",
 
-                        // BACKEND
-                        "https://api.truvish.com",
-                        "https://truvish-backend-production.up.railway.app",
+                        // =================================================
+                        // RAILWAY FRONTENDS / SERVICES
+                        // =================================================
 
-                        // RAILWAY
                         "https://*.up.railway.app",
 
+                        // =================================================
                         // NETLIFY
+                        // =================================================
+
                         "https://*.netlify.app",
 
+                        // =================================================
                         // CLOUDFLARE
+                        // =================================================
+
                         "https://*.trycloudflare.com",
 
+                        // =================================================
                         // OTHER DOMAINS
+                        // =================================================
+
                         "https://trivish-redeem.com",
                         "https://www.trivish-redeem.com",
 
+                        // =================================================
                         // LOCAL DEVELOPMENT
+                        // =================================================
+
                         "http://localhost:3000",
                         "http://localhost:5173",
                         "http://localhost:5174",
@@ -71,7 +85,7 @@ public class WebConfig implements WebMvcConfigurer {
         );
 
         // =====================================================
-        // METHODS
+        // HTTP METHODS
         // =====================================================
 
         configuration.setAllowedMethods(
@@ -87,7 +101,7 @@ public class WebConfig implements WebMvcConfigurer {
         );
 
         // =====================================================
-        // HEADERS
+        // REQUEST HEADERS
         // =====================================================
 
         configuration.setAllowedHeaders(
@@ -118,7 +132,7 @@ public class WebConfig implements WebMvcConfigurer {
         configuration.setMaxAge(3600L);
 
         // =====================================================
-        // REGISTER CORS
+        // REGISTER CORS FOR ALL ENDPOINTS
         // =====================================================
 
         UrlBasedCorsConfigurationSource source =
