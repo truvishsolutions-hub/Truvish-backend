@@ -1,6 +1,5 @@
 package com.truvish.truvishbackend.corporateLogin.security;
 
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +17,8 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtAuthenticationFilter
+        extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
@@ -30,46 +30,68 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader =
+                request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null
+                || !authHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(7);
+        final String jwt =
+                authHeader.substring(7);
 
         String email;
 
         try {
+
             email = jwtService.extractEmail(jwt);
+
         } catch (Exception ex) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (email != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (email != null
+                && SecurityContextHolder
+                .getContext()
+                .getAuthentication() == null) {
 
             UserDetails userDetails =
-                    customUserDetailsService.loadUserByUsername(email);
+                    customUserDetailsService
+                            .loadUserByUsername(email);
 
-            if (jwtService.isTokenValid(jwt, userDetails)) {
+            try {
 
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
+                if (jwtService.isTokenValid(
+                        jwt,
+                        userDetails
+                )) {
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
 
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authentication);
+                }
+
+            } catch (Exception ex) {
+
+                // Invalid/expired JWT:
+                // continue without authentication
             }
         }
 
