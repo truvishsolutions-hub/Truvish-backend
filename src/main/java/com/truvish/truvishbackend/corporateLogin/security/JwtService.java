@@ -2,7 +2,6 @@ package com.truvish.truvishbackend.corporateLogin.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,8 +28,12 @@ public class JwtService {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .expiration(
+                        new Date(
+                                System.currentTimeMillis() + jwtExpiration
+                        )
+                )
+                .signWith(getSignInKey())
                 .compact();
     }
 
@@ -38,13 +41,17 @@ public class JwtService {
      * Extract Email From JWT
      */
     public String extractEmail(String token) {
+
         return extractAllClaims(token).getSubject();
     }
 
     /**
      * Validate Token Using Email
      */
-    public boolean isTokenValid(String token, String email) {
+    public boolean isTokenValid(
+            String token,
+            String email
+    ) {
 
         String tokenEmail = extractEmail(token);
 
@@ -55,7 +62,10 @@ public class JwtService {
     /**
      * Validate Token Using UserDetails
      */
-    public boolean isTokenValid(String token, UserDetails userDetails) {
+    public boolean isTokenValid(
+            String token,
+            UserDetails userDetails
+    ) {
 
         String email = extractEmail(token);
 
@@ -68,7 +78,8 @@ public class JwtService {
      */
     private boolean isTokenExpired(String token) {
 
-        Date expirationDate = extractAllClaims(token).getExpiration();
+        Date expirationDate =
+                extractAllClaims(token).getExpiration();
 
         return expirationDate.before(new Date());
     }
@@ -87,10 +98,17 @@ public class JwtService {
 
     /**
      * Secret Signing Key
+     *
+     * Removes spaces/newlines from Railway environment variable
+     * before Base64 decoding.
      */
     private SecretKey getSignInKey() {
 
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        String cleanSecret = secretKey
+                .replaceAll("\\s+", "");
+
+        byte[] keyBytes =
+                Decoders.BASE64.decode(cleanSecret);
 
         return Keys.hmacShaKeyFor(keyBytes);
     }
